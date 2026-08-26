@@ -1,199 +1,39 @@
-# 智能保险平台
+# 小明智能投保助手
 
-基于 [Embabel 框架](https://github.com/embabel/embabel-agent) 的多 Agent 智能保险平台，支持核保、理赔、AI 客服等核心业务流程，集成 RAG 知识库、混合搜索和完整可观测性。
+面向保险顾问的单产品限定域智能投保助手。首期产品为复星联合达尔文 12 号重大疾病保险（互联网），产品 ID `36743`。
 
-## 功能特性
+当前状态：**Phase 00 — 开发基线**。现有车险代码是待替换的参考资产，不是目标产品。
 
-- **🚗 核保 Agent** — LLM 提取车辆信息 → 风险评分 → 自动路由（批准 / 转人工 / 拒绝）
-- **📋 理赔 Agent** — 保单校验 → 欺诈评分 → 自动路由（批准 / 人工审核 / 拒绝）
-- **💬 AI 客服** — RAG 知识库问答，BM25 + 向量混合搜索
-- **🔀 意图路由** — 自然语言输入，自动识别并路由到对应业务模块
-- **🛡️ 安全防护** — Spring Security + Embabel Guardrails 输入校验
-- **📊 可观测性** — Prometheus + Grafana 指标监控
+## 开发依据
 
-## 技术栈
+- `AGENTS.md`：阶段门禁、测试和安全规则；
+- `docs/development-roadmap.md`：阶段范围和退出条件；
+- `docs/specs/`：V2.0 产品、前端、后端和立项原始文档；
+- `docs/acceptance/`：每阶段验收报告。
 
-| 组件 | 技术 |
-|------|------|
-| 框架 | Spring Boot 4.0.1 / Java 21 |
-| Agent 框架 | Embabel 2.0.0 (SNAPSHOT) |
-| LLM | DeepSeek (deepseek-chat) |
-| 数据库 | MySQL 8.x |
-| 全文检索 | Lucene BM25 |
-| 向量检索 | Qdrant + Ollama (nomic-embed-text) |
-| 混合搜索 | RRF 融合排序 |
-| 前端 | 静态 HTML (Spring Boot 内嵌) |
-| 安全 | Spring Security + HTTP Basic + 角色层级 |
-| 可观测性 | Prometheus + Grafana + Langfuse |
+## 本地准备
 
-## 快速开始
-
-### 前置条件
-
-- Java 21+
-- Maven 3.8+
-- MySQL 8.0+（运行中）
-- DeepSeek API Key
-- Docker（Qdrant / Langfuse / Prometheus / Grafana）
-
-### 1. 环境变量
+1. 使用 VS Code 打开仓库根目录。
+2. 安装工作区推荐扩展。
+3. 将 `.env.local.example` 复制为 `.env.local`。
+4. 由用户在 `.env.local` 填写 `DEEPSEEK_API_KEY`；禁止提交该文件。
+5. 运行 VS Code 任务 `Phase Gate: Local`，或使用终端：
 
 ```bash
-# 必填
-export DEEPSEEK_API_KEY=your-deepseek-api-key
-
-# MySQL（可选，有默认值）
-export MYSQL_URL=jdbc:mysql://localhost:3306/embabel_insurance?createDatabaseIfNotExist=true
-export MYSQL_USER=root
-export MYSQL_PASSWORD=Embabel@2024!
+./scripts/phase-gate.sh
 ```
 
-### 2. 启动依赖服务
+本机 Java 版本固定为 Temurin 21，VS Code 已通过 `.vscode/settings.json` 指向用户级 JDK。
 
-```bash
-# 确保 MySQL 已启动并创建数据库
-mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS embabel_insurance CHARACTER SET utf8mb4"
+## POC 边界
 
-# 启动 Docker 服务（Qdrant + 可观测性）
-docker compose up -d
-```
+POC 阶段免登录，浏览器本地保存会话并严格隔离不同客户。正式上线时增加邀请码准入。
 
-### 3. 启动应用
+产品只覆盖九类白名单能力，不提供真实报价、支付、保单查询、核保结论、医学诊断或真实理赔结论。关键回答必须带正式资料依据；证据不足或冲突时停止给出确定结论。
 
-```bash
-./mvnw spring-boot:run
-```
+## 分支规则
 
-应用默认在 `http://localhost:8080` 启动，启动时自动初始化测试数据并摄入 RAG 文档。
-
-### 4. 体验
-
-打开 **http://localhost:8080** → 登录（user / password）→ 开始对话：
-
-```
-🚗 我要给京A88888的RAV4投保              → 核保报价
-📋 policy=POL-001 description=刮蹭 amount=5000  → 理赔申请
-📄 我的保单                              → 保单查询
-💬 综合险是什么？                         → 客服问答
-```
-
-## 测试用户
-
-| 用户名 | 密码 | 说明 |
-|--------|------|------|
-| `user` | password | 普通用户，聊天+查看保单 |
-| `low-risk-user` | password | 核保自动通过 |
-| `medium-risk-user` | password | 核保转人工 |
-| `high-risk-user` | password | 核保拒绝 |
-| `underwriter` | underwriter | 核保员，可审批报价 |
-| `claims` | claims | 理赔员，可审核理赔 |
-| `admin` | admin | 管理员，全部权限 |
-
-## 架构
-
-```
-用户输入 (Chat UI / REST API)
-    ↓
-AssistantController (/api/assistant)
-    ↓
-IntentClassifier  ─→  CHAT       → HybridSearchService + ChatbotAgent
-                   │               (BM25 + Qdrant 混合搜索)
-                   ├→  UNDERWRITING → AgentService + UnderwritingAgent
-                   ├→  CLAIMS       → AgentService + ClaimsAgent
-                   ├→  POLICY_QUERY → PolicyService
-                   ├→  PAYMENT      → PaymentService
-                   └→  VIEW_DETAILS → QuoteRepository
-    ↓
-AssistantResponse (结构化 JSON)
-    ↓
-Chat UI (打字机渲染 + 操作按钮)
-```
-
-## API
-
-### 统一助手（推荐）
-
-```bash
-# 自然语言输入，自动路由
-curl -u user:password -X POST http://localhost:8080/api/assistant \
-  -H "Content-Type: application/json" \
-  -d '{"message": "我要给京A88888的RAV4投保"}'
-```
-
-返回结构化响应：
-
-```json
-{
-  "type": "underwriting_result",
-  "text": "✅ 核保通过，保费 ¥3,680...",
-  "data": { "quoteId": 1, "status": "APPROVED", "premiumAmount": 3680 },
-  "actions": [{ "label": "💳 立即支付", "action": "pay", "payload": { "quoteId": 1 } }]
-}
-```
-
-### 原始接口
-
-| 端点 | 方法 | 说明 |
-|------|------|------|
-| `/api/assistant` | POST | 统一助手入口 |
-| `/api/chat` | POST | 客服问答 |
-| `/api/insurance/underwrite` | POST | 核保 |
-| `/api/insurance/claims` | POST | 理赔 |
-| `/api/insurance/policies` | GET | 保单列表 |
-| `/api/insurance/pay` | POST | 支付 |
-| `/api/insurance/health` | GET | 健康检查 |
-
-Swagger UI: `http://localhost:8080/swagger-ui.html`
-
-## 可观测性
-
-```
-应用 (:8080)
-  ├─ /actuator/prometheus ← Prometheus (:9090) ← Grafana (:4000)
-  └─ OTLP → Langfuse (:3000)
-```
-
-| 服务 | 地址 | 说明 |
-|------|------|------|
-| Grafana | http://localhost:4000 | admin/admin |
-| Prometheus | http://localhost:9090 | 指标存储 |
-| Langfuse | http://localhost:3000 | LLM 调用追踪 |
-
-## 测试
-
-```bash
-# 全部测试
-./mvnw test
-
-# 单个测试
-./mvnw test -Dtest=UnderwritingAgentIntegrationTest
-
-# E2E 测试（需 API Key）
-./mvnw test -Pe2e
-
-# 跳过集成测试（快速编译）
-./mvnw test -Dtest='!integration.*,!e2e.*'
-```
-
-集成测试使用 `FakeOperationContext` 模拟 LLM 响应，无需真实 API 调用。
-
-## 项目结构
-
-```
-src/main/java/com/embabel/insurance/
-├── agent/         # 三个 @Agent（Underwriting / Claims / Chatbot）
-├── assistant/     # Phase 1：IntentClassifier + Intent 枚举
-├── config/        # Security、RAG、Guardrail、DataInitializer 等
-├── controller/    # REST 控制器
-├── dto/           # 请求/响应 DTO
-├── entity/        # JPA 实体
-├── guardrail/     # Embabel GuardRail 实现
-├── rag/           # EmbeddingService / QdrantSearch / HybridSearch
-├── repository/    # Spring Data JPA
-├── service/       # AgentService / ChatService / PaymentService 等
-└── util/
-```
-
-## 许可
-
-Apache 2.0
+- 当前阶段：`phase/00-development-baseline`
+- 旧车险免登录归档：`archive/vehicle-poc-passwordless-wip`
+- 第三方 `upstream` 只读，禁止推送；
+- 阶段只有在验收报告为 PASS 后才能打 `phase-NN-passed` 标签并创建下一阶段分支。

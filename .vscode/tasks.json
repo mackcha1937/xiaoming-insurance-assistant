@@ -1,0 +1,60 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Phase Gate: Local",
+      "type": "shell",
+      "command": "./scripts/phase-gate.sh",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "JAVA_HOME": "/Users/zzymima0000/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home"
+        }
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Maven: Compile",
+      "type": "shell",
+      "command": "./mvnw -DskipTests compile",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "JAVA_HOME": "/Users/zzymima0000/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home"
+        }
+      },
+      "problemMatcher": ["$javac"]
+    },
+    {
+      "label": "Maven: Tests without E2E",
+      "type": "shell",
+      "command": "./mvnw -DexcludedGroups=e2e test",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "env": {
+          "JAVA_HOME": "/Users/zzymima0000/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home"
+        }
+      },
+      "group": "test",
+      "problemMatcher": ["$javac"]
+    },
+    {
+      "label": "Maven: DeepSeek E2E",
+      "type": "shell",
+      "command": "set -a; source .env.local; set +a; ./mvnw -Dgroups=e2e -Dtest=CompleteE2ETest test",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": {
+          "executable": "/bin/zsh",
+          "args": ["-l", "-c"]
+        },
+        "env": {
+          "JAVA_HOME": "/Users/zzymima0000/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home"
+        }
+      },
+      "group": "test",
+      "problemMatcher": ["$javac"]
+    }
+  ]
+}

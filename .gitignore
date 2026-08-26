@@ -27,7 +27,11 @@ buildNumber.properties
 *.iml
 *.ipr
 *.iws
-.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/launch.json
+!.vscode/settings.json
+!.vscode/tasks.json
 .project
 .classpath
 .settings/
@@ -47,6 +51,9 @@ logs/
 *.log.*
 **/*.log
 **/*.log.*
+
+# Local-only runtime data
+.local-data/
 
 
 

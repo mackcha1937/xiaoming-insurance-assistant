@@ -1,0 +1,23 @@
+{
+  "java.jdt.ls.java.home": "/Users/zzymima0000/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home",
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "/Users/zzymima0000/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home",
+      "default": true
+    }
+  ],
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "maven.executable.preferMavenWrapper": true,
+  "files.exclude": {
+    "**/.local-data": true,
+    "**/target": true
+  },
+  "files.watcherExclude": {
+    "**/.git/objects/**": true,
+    "**/target/**": true,
+    "**/.local-data/**": true
+  },
+  "editor.formatOnSave": true
+}

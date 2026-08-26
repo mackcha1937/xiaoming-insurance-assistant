@@ -1,0 +1,18 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Backend: Local (H2 + BM25)",
+      "request": "launch",
+      "mainClass": "com.embabel.insurance.EmbabelApplication",
+      "projectName": "embabel-insurance",
+      "cwd": "${workspaceFolder}",
+      "envFile": "${workspaceFolder}/.env.local",
+      "env": {
+        "SPRING_PROFILES_ACTIVE": "local"
+      },
+      "console": "integratedTerminal"
+    }
+  ]
+}
