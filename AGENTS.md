@@ -51,6 +51,7 @@
 
 ## 当前阶段
 
-当前为 Phase 01：工程骨架与统一契约。范围见 `docs/development-roadmap.md` 和
-`docs/acceptance/phase-01-checklist.md`。本阶段只建立前后端骨架、统一契约和可验证的
-占位行为；不得提前实现知识检索、业务规则、真实问答、职业、健康、清单或投保外链。
+当前为 Phase 02：知识版本、规则与证据底座。范围见 `docs/development-roadmap.md` 和
+`docs/acceptance/phase-02-checklist.md`。本阶段只建设知识导入、版本隔离、页码、切分、
+BM25/向量检索端口、RRF、规则条件树和证据门禁；不得提前启用真实问答或 Phase 03—07
+的职业、历史、健康、清单与投保外链能力。

@@ -66,6 +66,12 @@ xiaoming:
     name: "复星联合达尔文12号重大疾病保险（互联网）"
     current-knowledge-version: "v2.0-baseline"
     environment: test
+  knowledge:
+    max-chunk-characters: 1200
+    chunk-overlap-characters: 150
+    rrf-k: 60
+    evidence-threshold: 0.01
+    degraded-vector-threshold: 0.8
 
 logging:
   level:
