@@ -60,6 +60,13 @@ insurance:
 server:
   port: 0
 
+xiaoming:
+  product:
+    product-id: "36743"
+    name: "复星联合达尔文12号重大疾病保险（互联网）"
+    current-knowledge-version: "v2.0-baseline"
+    environment: test
+
 logging:
   level:
     com.embabel.insurance: DEBUG

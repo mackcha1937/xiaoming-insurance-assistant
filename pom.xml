@@ -19,12 +19,16 @@
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <embabel-agent.version>2.0.0-SNAPSHOT</embabel-agent.version>
         <!-- Embabel 2.0.0-SNAPSHOT still calls ContextRegistry#removeThreadLocalAccessor(Object).
              Micrometer 1.2.0 removed that binary overload; 1.1.4 exposes both Object and String. -->
         <context-propagation.version>1.1.4</context-propagation.version>
         <embabel.models.default-llm>deepseek-chat</embabel.models.default-llm>
+        <!-- 普通回归必须离线可重复；真实模型 E2E 仅可通过 -Plive-e2e 显式启用。 -->
+        <surefire.excludedGroups>e2e</surefire.excludedGroups>
+        <surefire.groups></surefire.groups>
     </properties>
 
     <dependencies>
@@ -129,6 +133,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webmvc-test</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.security</groupId>
@@ -231,16 +240,29 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.11.0</version>
                 <configuration>
-                    <source>21</source>
-                    <target>21</target>
+                    <release>21</release>
                 </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
+                <configuration>
+                    <groups>${surefire.groups}</groups>
+                    <excludedGroups>${surefire.excludedGroups}</excludedGroups>
+                </configuration>
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>live-e2e</id>
+            <properties>
+                <surefire.groups>e2e</surefire.groups>
+                <surefire.excludedGroups></surefire.excludedGroups>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

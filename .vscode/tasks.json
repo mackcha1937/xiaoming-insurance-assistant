@@ -29,7 +29,7 @@
     {
       "label": "Maven: Tests without E2E",
       "type": "shell",
-      "command": "./mvnw -DexcludedGroups=e2e test",
+      "command": "./mvnw test",
       "options": {
         "cwd": "${workspaceFolder}",
         "env": {
@@ -40,9 +40,38 @@
       "problemMatcher": ["$javac"]
     },
     {
+      "label": "Frontend: Install Exact Dependencies",
+      "type": "shell",
+      "command": "npm ci --no-audit --no-fund",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Test and Build",
+      "type": "shell",
+      "command": "npm test && npm run build",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "group": "test",
+      "problemMatcher": []
+    },
+    {
+      "label": "Frontend: Dev Server",
+      "type": "shell",
+      "command": "npm run dev",
+      "options": {
+        "cwd": "${workspaceFolder}/frontend"
+      },
+      "isBackground": true,
+      "problemMatcher": []
+    },
+    {
       "label": "Maven: DeepSeek E2E",
       "type": "shell",
-      "command": "set -a; source .env.local; set +a; ./mvnw -Dgroups=e2e -Dtest=CompleteE2ETest test",
+      "command": "set -a; source .env.local; set +a; ./mvnw -Plive-e2e test",
       "options": {
         "cwd": "${workspaceFolder}",
         "shell": {

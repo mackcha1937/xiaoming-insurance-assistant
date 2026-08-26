@@ -33,6 +33,19 @@ echo "[gate] compile"
 ./mvnw -DskipTests compile
 
 echo "[gate] automated tests (excluding e2e)"
-./mvnw -DexcludedGroups=e2e test
+./mvnw test
+
+echo "[gate] frontend contract, types, tests and production build"
+if [ ! -d frontend/node_modules ]; then
+  echo "frontend/node_modules is missing; run: cd frontend && npm ci" >&2
+  exit 1
+fi
+(
+  cd frontend
+  npm run check:contracts
+  npm run typecheck
+  npm test
+  npm run build
+)
 
 echo "[gate] PASS: common automated checks completed"

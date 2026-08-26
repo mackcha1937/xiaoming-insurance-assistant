@@ -63,6 +63,8 @@ public class SecurityConfig {
                 // 健康检查 + Actuator
                 .requestMatchers("/api/insurance/health").permitAll()
                 .requestMatchers("/actuator/health", "/actuator/metrics", "/actuator/prometheus").permitAll()
+                // 小明 V2 内部 POC 暂不登录；生产化改用邀请码准入
+                .requestMatchers("/api/v1/xiaoming/**").permitAll()
                 // 业务 API — 需要认证
                 .requestMatchers("/api/chat/**").authenticated()
                 .requestMatchers("/api/assistant/**").authenticated()

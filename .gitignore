@@ -60,6 +60,9 @@ logs/
 # Testing
 surefire-reports/
 failsafe-reports/
+frontend/node_modules/
+frontend/dist/
+frontend/coverage/
 
 # Misc
 *.swp

@@ -51,4 +51,6 @@
 
 ## 当前阶段
 
-当前为 Phase 00：开发基线。范围见 `docs/development-roadmap.md`。Phase 00 验收通过前不得开始产品功能开发。
+当前为 Phase 01：工程骨架与统一契约。范围见 `docs/development-roadmap.md` 和
+`docs/acceptance/phase-01-checklist.md`。本阶段只建立前后端骨架、统一契约和可验证的
+占位行为；不得提前实现知识检索、业务规则、真实问答、职业、健康、清单或投保外链。

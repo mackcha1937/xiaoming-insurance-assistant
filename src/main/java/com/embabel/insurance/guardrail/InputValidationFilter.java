@@ -1,5 +1,7 @@
 package com.embabel.insurance.guardrail;
 
+import com.embabel.insurance.xiaoming.contract.XiaomingErrorCode;
+import com.embabel.insurance.xiaoming.web.XiaomingErrorWriter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,6 +34,12 @@ public class InputValidationFilter extends OncePerRequestFilter {
     /** 最大输入长度（字符，约等于 1 万个中文字符） */
     private static final int MAX_BODY_CHARS = 5_000;
 
+    private final XiaomingErrorWriter xiaomingErrorWriter;
+
+    public InputValidationFilter(XiaomingErrorWriter xiaomingErrorWriter) {
+        this.xiaomingErrorWriter = xiaomingErrorWriter;
+    }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
@@ -49,7 +57,7 @@ public class InputValidationFilter extends OncePerRequestFilter {
         long contentLength = request.getContentLengthLong();
         if (contentLength > MAX_CONTENT_LENGTH) {
             logger.warn("Input too long (Content-Length): path={}, size={}", path, contentLength);
-            reject(response, "输入内容过长，请限制在 10000 字符以内。");
+            reject(request, response, path, "输入内容过长，请限制在 5000 字符以内。");
             return;
         }
 
@@ -66,7 +74,7 @@ public class InputValidationFilter extends OncePerRequestFilter {
         // 检查字符数（非字节数）
         if (body.length() > MAX_BODY_CHARS) {
             logger.warn("Input too long (body): path={}, chars={}", path, body.length());
-            reject(response, "输入内容过长，请限制在 10000 字符以内。");
+            reject(request, response, path, "输入内容过长，请限制在 5000 字符以内。");
             return;
         }
 
@@ -78,7 +86,22 @@ public class InputValidationFilter extends OncePerRequestFilter {
         filterChain.doFilter(wrappedRequest, response);
     }
 
-    private void reject(HttpServletResponse response, String message) throws IOException {
+    private void reject(
+            HttpServletRequest request,
+            HttpServletResponse response,
+            String path,
+            String message
+    ) throws IOException {
+        if (path.startsWith("/api/v1/xiaoming")) {
+            xiaomingErrorWriter.write(
+                    request,
+                    response,
+                    XiaomingErrorCode.VALIDATION_ERROR,
+                    message,
+                    false
+            );
+            return;
+        }
         response.setStatus(413);
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write("{\"error\":\"" + message + "\"}");

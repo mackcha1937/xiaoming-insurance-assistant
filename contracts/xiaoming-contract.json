@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "1.0.0",
+  "apiBasePath": "/api/v1/xiaoming",
+  "product": {
+    "productId": "36743",
+    "name": "复星联合达尔文12号重大疾病保险（互联网）",
+    "knowledgeVersion": "v2.0-baseline"
+  },
+  "statuses": [
+    "SUCCESS",
+    "NEED_INPUT",
+    "INSUFFICIENT_EVIDENCE",
+    "REFUSED",
+    "CONFLICT",
+    "ERROR"
+  ],
+  "intents": [
+    { "code": "COVERAGE_RESPONSIBILITY", "label": "保障责任" },
+    { "code": "EXCLUSIONS_AND_LIMITATIONS", "label": "免责与限制" },
+    { "code": "APPLICATION_RULES", "label": "投保规则" },
+    { "code": "OCCUPATION_QUERY", "label": "职业查询" },
+    { "code": "APPLICATION_PROCESS", "label": "投保流程" },
+    { "code": "MATERIAL_CHECKLIST", "label": "动态资料清单" },
+    { "code": "HEALTH_DISCLOSURE", "label": "健康告知" },
+    { "code": "CLAIMS_PATH", "label": "理赔路径" },
+    { "code": "FORMAL_APPLICATION", "label": "正式投保" }
+  ],
+  "errorCodes": [
+    { "code": "VALIDATION_ERROR", "httpStatus": 400 },
+    { "code": "INTENT_NOT_ALLOWED", "httpStatus": 200 },
+    { "code": "EVIDENCE_INSUFFICIENT", "httpStatus": 200 },
+    { "code": "KNOWLEDGE_CONFLICT", "httpStatus": 200 },
+    { "code": "FILE_UNSUPPORTED", "httpStatus": 415 },
+    { "code": "RATE_LIMITED", "httpStatus": 429 },
+    { "code": "MODEL_TIMEOUT", "httpStatus": 504 },
+    { "code": "APPLICATION_URL_NOT_CONFIGURED", "httpStatus": 503 },
+    { "code": "DEPENDENCY_UNAVAILABLE", "httpStatus": 503 }
+  ],
+  "actionTypes": [
+    "SELECT_CAPABILITY",
+    "SUBMIT_MESSAGE",
+    "PROVIDE_FIELD",
+    "VIEW_EVIDENCE",
+    "RETRY_REQUEST",
+    "RETURN_TO_ASSISTANT"
+  ],
+  "cardTypes": ["NOTICE", "QUESTION", "SUMMARY"]
+}

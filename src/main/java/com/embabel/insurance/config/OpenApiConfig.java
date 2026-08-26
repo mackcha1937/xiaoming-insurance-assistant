@@ -5,7 +5,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
@@ -23,22 +22,14 @@ public class OpenApiConfig {
     public OpenAPI insurancePlatformOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
-                        .title("Smart Insurance Platform API")
+                        .title("小明智能投保助手 API")
                         .description("""
-                                Intelligent Insurance Platform powered by Embabel AI Agent Framework.
-                                
-                                ## Authentication
-                                This API uses **HTTP Basic Auth**. Use your credentials to authenticate.
-                                
-                                ## Available Users (for testing)
-                                | Username     | Password      | Role         | Permissions                          |
-                                |-------------|---------------|--------------|--------------------------------------|
-                                | user        | password      | USER         | underwriting:read, chat:use, policies:read |
-                                | underwriter | underwriter   | UNDERWRITER  | underwriting:write, policies:read    |
-                                | claims      | claims        | CLAIMS       | claims:write, policies:read          |
-                                | admin       | admin         | ADMIN        | Full access, RAG admin               |
+                                达尔文12号重大疾病保险（互联网）的单产品限定域内部 POC。
+
+                                `/api/v1/xiaoming` 在 POC 阶段免登录；正式上线使用邀请码准入。
+                                旧车险示例接口保留 HTTP Basic Auth，仅作为回归资产。
                                 """)
-                        .version("1.0.0")
+                        .version("2.0.0-phase01")
                         .contact(new Contact()
                                 .name("Insurance Platform Team")
                                 .email("support@example.com"))
@@ -48,7 +39,6 @@ public class OpenApiConfig {
                 .servers(List.of(
                         new Server().url("http://localhost:8080").description("Local Development Server")
                 ))
-                .addSecurityItem(new SecurityRequirement().addList("basicAuth"))
                 .components(new Components()
                         .addSecuritySchemes("basicAuth", new SecurityScheme()
                                 .type(SecurityScheme.Type.HTTP)

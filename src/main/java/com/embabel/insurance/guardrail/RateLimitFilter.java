@@ -1,5 +1,7 @@
 package com.embabel.insurance.guardrail;
 
+import com.embabel.insurance.xiaoming.contract.XiaomingErrorCode;
+import com.embabel.insurance.xiaoming.web.XiaomingErrorWriter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,10 +34,16 @@ public class RateLimitFilter extends OncePerRequestFilter {
 
     private final RateLimitingService rateLimitingService;
     private final Environment environment;
+    private final XiaomingErrorWriter xiaomingErrorWriter;
 
-    public RateLimitFilter(RateLimitingService rateLimitingService, Environment environment) {
+    public RateLimitFilter(
+            RateLimitingService rateLimitingService,
+            Environment environment,
+            XiaomingErrorWriter xiaomingErrorWriter
+    ) {
         this.rateLimitingService = rateLimitingService;
         this.environment = environment;
+        this.xiaomingErrorWriter = xiaomingErrorWriter;
     }
 
     @Override
@@ -63,6 +71,17 @@ public class RateLimitFilter extends OncePerRequestFilter {
         // 检查限流
         if (!rateLimitingService.tryConsume(userId, path)) {
             logger.warn("Rate limited: user={}, path={}, method={}", userId, path, request.getMethod());
+            if (path.startsWith("/api/v1/xiaoming")) {
+                response.setHeader("Retry-After", "60");
+                xiaomingErrorWriter.write(
+                        request,
+                        response,
+                        XiaomingErrorCode.RATE_LIMITED,
+                        "请求过于频繁，请稍后重试。",
+                        true
+                );
+                return;
+            }
             response.setStatus(429);
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"error\":\"请求过于频繁，请稍后再试。\"}");

@@ -54,6 +54,8 @@ public class TestConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/insurance/health").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
+                .requestMatchers("/api/v1/xiaoming/**").permitAll()
                 .anyRequest().authenticated()
             )
             .httpBasic(httpBasic -> {});

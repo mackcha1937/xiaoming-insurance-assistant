@@ -66,6 +66,13 @@ insurance:
 server:
   port: 8080
 
+xiaoming:
+  product:
+    product-id: "36743"
+    name: "复星联合达尔文12号重大疾病保险（互联网）"
+    current-knowledge-version: "v2.0-baseline"
+    environment: ${APP_ENVIRONMENT:local}
+
 # ============================================================
 # 可观测性 — Actuator + Prometheus（已开启）
 # Langfuse 按需取消注释并设置 LANGFUSE_* 环境变量
