@@ -37,7 +37,7 @@ class XiaomingContractIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    void shouldReturnNoLoginProductContextWithNineDisabledCapabilities() throws Exception {
+    void shouldReturnNoLoginProductContextWithFivePhaseThreeCapabilities() throws Exception {
         mockMvc.perform(get(BASE_PATH + "/product-context")
                         .header("X-Request-Id", "request-00000001"))
                 .andExpect(status().isOk())
@@ -49,8 +49,8 @@ class XiaomingContractIntegrationTest {
                 .andExpect(jsonPath("$.data.authenticationRequired").value(false))
                 .andExpect(jsonPath("$.data.accessMode").value("POC_NO_LOGIN"))
                 .andExpect(jsonPath("$.data.capabilities", hasSize(9)))
-                .andExpect(jsonPath("$.data.capabilities[*].enabled", containsInAnyOrder(
-                        false, false, false, false, false, false, false, false, false)))
+                .andExpect(jsonPath("$.data.capabilities[?(@.enabled == true)]", hasSize(5)))
+                .andExpect(jsonPath("$.data.capabilities[?(@.enabled == false)]", hasSize(4)))
                 .andExpect(jsonPath("$.cards").isArray())
                 .andExpect(jsonPath("$.evidence").isArray())
                 .andExpect(jsonPath("$.suggestions").isArray())
@@ -146,7 +146,7 @@ class XiaomingContractIntegrationTest {
                 .andExpect(header().string("Idempotency-Replayed", "false"))
                 .andExpect(jsonPath("$.status").value("ERROR"))
                 .andExpect(jsonPath("$.error.code").value("DEPENDENCY_UNAVAILABLE"))
-                .andExpect(jsonPath("$.error.retryable").value(false))
+                .andExpect(jsonPath("$.error.retryable").value(true))
                 .andExpect(jsonPath("$.cards", hasSize(0)))
                 .andExpect(jsonPath("$.evidence", hasSize(0)));
 
@@ -167,13 +167,13 @@ class XiaomingContractIntegrationTest {
         mockMvc.perform(post(BASE_PATH + "/chat")
                         .header("Idempotency-Key", key)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(validChat("first")))
+                        .content(validChat("保障责任")))
                 .andExpect(status().isServiceUnavailable());
 
         mockMvc.perform(post(BASE_PATH + "/chat")
                         .header("Idempotency-Key", key)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(validChat("second")))
+                        .content(validChat("免责情形")))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error.code").value("VALIDATION_ERROR"));
     }
@@ -185,8 +185,8 @@ class XiaomingContractIntegrationTest {
                 .andExpect(jsonPath("$.paths['/api/v1/xiaoming/product-context']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/xiaoming/health/ready']").exists())
                 .andExpect(jsonPath("$.paths['/api/v1/xiaoming/chat']").exists())
-                .andExpect(jsonPath("$.components.schemas.XiaomingResponseVoid.properties.status.enum", hasSize(6)))
-                .andExpect(jsonPath("$.components.schemas.XiaomingResponseVoid.properties.intent.enum", hasSize(9)))
+                .andExpect(jsonPath("$.components.schemas.XiaomingResponseMapStringObject.properties.status.enum", hasSize(6)))
+                .andExpect(jsonPath("$.components.schemas.XiaomingResponseMapStringObject.properties.intent.enum", hasSize(9)))
                 .andExpect(jsonPath("$.components.schemas.XiaomingError.properties.code.enum", hasSize(9)));
     }
 

@@ -1,6 +1,8 @@
 package com.embabel.insurance.xiaoming.api;
 
 import com.embabel.insurance.xiaoming.config.XiaomingProductProperties;
+import com.embabel.insurance.xiaoming.conversation.ConversationResult;
+import com.embabel.insurance.xiaoming.conversation.XiaomingConversationService;
 import com.embabel.insurance.xiaoming.context.ProductContext;
 import com.embabel.insurance.xiaoming.context.ProductContextService;
 import com.embabel.insurance.xiaoming.contract.XiaomingError;
@@ -24,10 +26,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/xiaoming")
-@Tag(name = "Xiaoming V2 Foundation", description = "Phase 01 工程骨架与统一契约")
+@Tag(name = "Xiaoming V2 Conversation", description = "Phase 03 限定域对话、规则与证据门禁")
 public class XiaomingFoundationController {
 
     public static final String IDEMPOTENCY_KEY_HEADER = "Idempotency-Key";
@@ -37,17 +40,20 @@ public class XiaomingFoundationController {
     private final FoundationReadinessService readinessService;
     private final IdempotencyService idempotencyService;
     private final XiaomingProductProperties properties;
+    private final XiaomingConversationService conversationService;
 
     public XiaomingFoundationController(
             ProductContextService productContextService,
             FoundationReadinessService readinessService,
             IdempotencyService idempotencyService,
-            XiaomingProductProperties properties
+            XiaomingProductProperties properties,
+            XiaomingConversationService conversationService
     ) {
         this.productContextService = productContextService;
         this.readinessService = readinessService;
         this.idempotencyService = idempotencyService;
         this.properties = properties;
+        this.conversationService = conversationService;
     }
 
     @GetMapping("/product-context")
@@ -56,7 +62,7 @@ public class XiaomingFoundationController {
         return XiaomingResponse.success(
                 "产品上下文已就绪。",
                 productContextService.current(),
-                properties.currentKnowledgeVersion(),
+                productContextService.currentKnowledgeVersion(),
                 XiaomingRequestContext.traceId(request),
                 XiaomingRequestContext.requestId(request)
         );
@@ -91,33 +97,29 @@ public class XiaomingFoundationController {
     }
 
     @PostMapping("/chat")
-    @Operation(summary = "Phase 01 chat 契约占位端点，不调用模型", security = {})
-    public ResponseEntity<XiaomingResponse<Void>> chat(
+    @Operation(summary = "限定域对话：白名单、结构化规则和正式证据门禁", security = {})
+    public ResponseEntity<XiaomingResponse<Map<String, Object>>> chat(
             @Valid @RequestBody ChatRequest chatRequest,
             @RequestHeader(value = IDEMPOTENCY_KEY_HEADER, required = false) String idempotencyKey,
             HttpServletRequest request
     ) {
         validateChatRequest(chatRequest, idempotencyKey);
         String fingerprint = idempotencyService.fingerprint(chatRequest.fingerprintPayload());
-        IdempotencyService.IdempotencyResult<Void> result = idempotencyService.execute(
+        IdempotencyService.IdempotencyResult<Map<String, Object>> result = idempotencyService.execute(
                 "POST:/api/v1/xiaoming/chat",
                 idempotencyKey,
                 fingerprint,
-                () -> new IdempotencyService.StoredResponse<>(
-                        HttpStatus.SERVICE_UNAVAILABLE,
-                        XiaomingResponse.error(
-                                "当前阶段仅提供工程契约，业务问答尚未启用。",
-                                new XiaomingError(
-                                        XiaomingErrorCode.DEPENDENCY_UNAVAILABLE,
-                                        "业务问答将在后续阶段通过证据门禁后启用。",
-                                        false,
-                                        List.of()
-                                ),
-                                properties.currentKnowledgeVersion(),
-                                XiaomingRequestContext.traceId(request),
-                                XiaomingRequestContext.requestId(request)
-                        )
-                )
+                () -> {
+                    ConversationResult conversation = conversationService.answer(
+                            chatRequest,
+                            XiaomingRequestContext.traceId(request),
+                            XiaomingRequestContext.requestId(request)
+                    );
+                    return new IdempotencyService.StoredResponse<>(
+                            conversation.httpStatus(),
+                            conversation.response()
+                    );
+                }
         );
 
         if (result.conflict()) {
@@ -127,7 +129,7 @@ public class XiaomingFoundationController {
             );
         }
 
-        XiaomingResponse<Void> body = result.response().body();
+        XiaomingResponse<Map<String, Object>> body = result.response().body();
         return ResponseEntity.status(result.response().status())
                 .header(XiaomingRequestContext.TRACE_ID_HEADER, body.traceId())
                 .header(XiaomingRequestContext.REQUEST_ID_HEADER, body.requestId())

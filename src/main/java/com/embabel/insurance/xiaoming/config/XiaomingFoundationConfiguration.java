@@ -4,6 +4,6 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@EnableConfigurationProperties(XiaomingProductProperties.class)
+@EnableConfigurationProperties({XiaomingProductProperties.class, XiaomingConversationProperties.class})
 public class XiaomingFoundationConfiguration {
 }

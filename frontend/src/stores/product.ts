@@ -13,7 +13,17 @@ const foundationContext: ProductContext = {
   environment: 'local',
   authenticationRequired: false,
   accessMode: 'POC_NO_LOGIN',
-  capabilities: INTENTS.map(({ code, label }) => ({ intent: code, label, enabled: false })),
+  capabilities: INTENTS.map(({ code, label }) => ({
+    intent: code,
+    label,
+    enabled: [
+      'COVERAGE_RESPONSIBILITY',
+      'EXCLUSIONS_AND_LIMITATIONS',
+      'APPLICATION_RULES',
+      'APPLICATION_PROCESS',
+      'CLAIMS_PATH',
+    ].includes(code),
+  })),
 }
 
 export const useProductStore = defineStore('product', () => {
@@ -34,7 +44,7 @@ export const useProductStore = defineStore('product', () => {
       }
     } catch {
       connected.value = false
-      networkStore.reportError('后端服务尚未连接，当前显示阶段 1 本地契约。')
+      networkStore.reportError('后端服务尚未连接；页面仍可查看，但发送问题会提示重试。')
     } finally {
       loading.value = false
     }

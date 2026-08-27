@@ -10,7 +10,11 @@
       "cwd": "${workspaceFolder}",
       "envFile": "${workspaceFolder}/.env.local",
       "env": {
-        "SPRING_PROFILES_ACTIVE": "local"
+        "SPRING_PROFILES_ACTIVE": "local",
+        "XIAOMING_KNOWLEDGE_IMPORT_ENABLED": "true",
+        "XIAOMING_KNOWLEDGE_SOURCE_DIRECTORY": "${workspaceFolder}/docs/source-materials/product-36743/raw",
+        "XIAOMING_SPREADSHEET_SCAN_MODE": "STRUCTURE_ONLY",
+        "XIAOMING_MODEL_ENABLED": "false"
       },
       "console": "integratedTerminal"
     }

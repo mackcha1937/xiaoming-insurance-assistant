@@ -89,6 +89,12 @@ xiaoming:
     enabled: ${XIAOMING_KNOWLEDGE_IMPORT_ENABLED:false}
     source-directory: ${XIAOMING_KNOWLEDGE_SOURCE_DIRECTORY:}
     spreadsheet-scan-mode: ${XIAOMING_SPREADSHEET_SCAN_MODE:STRUCTURE_ONLY}
+  conversation:
+    # Local deterministic fallback stays available when model access is disabled.
+    model-enabled: ${XIAOMING_MODEL_ENABLED:false}
+    top-k: 6
+    max-evidence-characters: 6000
+    max-answer-characters: 1200
 
 # ============================================================
 # 可观测性 — Actuator + Prometheus（已开启）

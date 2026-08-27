@@ -72,6 +72,15 @@ xiaoming:
     rrf-k: 60
     evidence-threshold: 0.01
     degraded-vector-threshold: 0.8
+  knowledge-import:
+    enabled: false
+    source-directory:
+    spreadsheet-scan-mode: STRUCTURE_ONLY
+  conversation:
+    model-enabled: false
+    top-k: 10
+    max-evidence-characters: 6000
+    max-answer-characters: 1200
 
 logging:
   level:

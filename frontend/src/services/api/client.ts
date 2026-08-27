@@ -10,7 +10,7 @@ export interface RequestIdentity {
 
 export interface IdempotentChatRequest {
   identity: Required<RequestIdentity>
-  execute: () => Promise<XiaomingResponse<null>>
+  execute: () => Promise<XiaomingResponse<Record<string, unknown>>>
 }
 
 export class ApiResponseError extends Error {
@@ -67,7 +67,7 @@ export function prepareChatRequest(payload: ChatRequest): IdempotentChatRequest 
   }
   return {
     identity,
-    execute: () => request<null>('/chat', {
+    execute: () => request<Record<string, unknown>>('/chat', {
       method: 'POST',
       body: JSON.stringify(payload),
     }, identity),

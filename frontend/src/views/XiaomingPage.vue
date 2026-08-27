@@ -3,15 +3,21 @@ import { onMounted, onUnmounted } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
 import CapabilityGrid from '@/components/CapabilityGrid.vue'
-import FoundationComposer from '@/components/FoundationComposer.vue'
+import ConversationPanel from '@/components/ConversationPanel.vue'
 import PrivacyNotice from '@/components/PrivacyNotice.vue'
 import { useNetworkStore } from '@/stores/network'
 import { useProductStore } from '@/stores/product'
 import { useUiStore } from '@/stores/ui'
+import { useConversationStore } from '@/stores/conversation'
 
 const productStore = useProductStore()
 const networkStore = useNetworkStore()
 const uiStore = useUiStore()
+const conversationStore = useConversationStore()
+
+function ask(prompt: string): void {
+  void conversationStore.send(prompt)
+}
 
 function handleOnline(): void {
   networkStore.setOnline(true)
@@ -67,12 +73,12 @@ onUnmounted(() => {
       </section>
 
       <div v-if="networkStore.lastError" class="service-message" role="status">
-        <strong>前端骨架可用</strong>
+        <strong>服务连接提示</strong>
         <span>{{ networkStore.lastError }}</span>
       </div>
 
-      <CapabilityGrid :capabilities="productStore.context.capabilities" />
-      <FoundationComposer />
+      <CapabilityGrid :capabilities="productStore.context.capabilities" @select="ask" />
+      <ConversationPanel />
     </main>
 
     <footer>
