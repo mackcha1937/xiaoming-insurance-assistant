@@ -45,7 +45,8 @@ insurance:
   rag:
     documents-path: classpath:documents/
     documents: comprehensive_vehicle_insurance.md,claims_guide.md,faq.md
-    auto-ingest: true
+    # 旧车险演示资料不得进入产品 36743 的运行链路。
+    auto-ingest: false
     lucene:
       name: insurance-lucene
       chunk-size: 1000

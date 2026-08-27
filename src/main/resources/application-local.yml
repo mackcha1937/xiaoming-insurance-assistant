@@ -16,7 +16,8 @@ spring:
 
 insurance:
   rag:
-    auto-ingest: true
+    # Phase 02 仅允许导入产品 36743 经核验的正式资料。
+    auto-ingest: false
     embedding:
       enabled: false
 
