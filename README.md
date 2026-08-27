@@ -2,7 +2,8 @@
 
 面向保险顾问的单产品限定域智能投保助手。首期产品为复星联合达尔文 12 号重大疾病保险（互联网），产品 ID `36743`。
 
-当前状态：**Phase 00 — 开发基线**。现有车险代码是待替换的参考资产，不是目标产品。
+当前状态：**Phase 02 — 知识版本、规则与证据底座（PASS，待保存阶段提交）**。产品 `36743`
+当前资料已完成版本确认、正式导入和阶段验收；现有车险代码仅作为隔离的参考资产，不是目标产品。
 
 ## 开发依据
 
@@ -25,6 +26,17 @@
 
 本机 Java 版本固定为 Temurin 21，VS Code 已通过 `.vscode/settings.json` 指向用户级 JDK。
 
+产品资料自动导入默认关闭。只在本机确认资料存在时显式设置：
+
+```bash
+XIAOMING_KNOWLEDGE_IMPORT_ENABLED=true
+XIAOMING_KNOWLEDGE_SOURCE_DIRECTORY=docs/source-materials/product-36743/raw
+XIAOMING_SPREADSHEET_SCAN_MODE=STRUCTURE_ONLY
+```
+
+`FULL_CELL_SCAN` 仅用于阶段验收或离线维护；超大现金价值表会采用流式读取。原始资料、分享参数
+和实际资料清单均被 Git 忽略。
+
 ## POC 边界
 
 POC 阶段免登录，浏览器本地保存会话并严格隔离不同客户。正式上线时增加邀请码准入。
@@ -33,7 +45,7 @@ POC 阶段免登录，浏览器本地保存会话并严格隔离不同客户。�
 
 ## 分支规则
 
-- 当前阶段：`phase/00-development-baseline`
+- 当前阶段：`phase/02-knowledge-rules-evidence`
 - 旧车险免登录归档：`archive/vehicle-poc-passwordless-wip`
 - 第三方 `upstream` 只读，禁止推送；
 - 阶段只有在验收报告为 PASS 后才能打 `phase-NN-passed` 标签并创建下一阶段分支。

@@ -63,6 +63,10 @@ public class RuleEngine {
             case IN -> in(actual, condition.expected());
             case BETWEEN -> numberBetween(actual, condition.expected(), condition.upperBound());
             case DATE_BETWEEN -> dateBetween(actual, condition.expected(), condition.upperBound());
+            case GREATER_THAN -> compareNumbers(actual, condition.expected()) > 0;
+            case GREATER_THAN_OR_EQUAL -> compareNumbers(actual, condition.expected()) >= 0;
+            case LESS_THAN -> compareNumbers(actual, condition.expected()) < 0;
+            case LESS_THAN_OR_EQUAL -> compareNumbers(actual, condition.expected()) <= 0;
             case EXISTS -> throw new IllegalStateException("EXISTS handled before switch");
         };
         return matched(matches);
@@ -119,6 +123,10 @@ public class RuleEngine {
     private boolean numberBetween(Object actual, Object lower, Object upper) {
         BigDecimal value = decimal(actual);
         return value.compareTo(decimal(lower)) >= 0 && value.compareTo(decimal(upper)) <= 0;
+    }
+
+    private int compareNumbers(Object actual, Object expected) {
+        return decimal(actual).compareTo(decimal(expected));
     }
 
     private boolean dateBetween(Object actual, Object lower, Object upper) {

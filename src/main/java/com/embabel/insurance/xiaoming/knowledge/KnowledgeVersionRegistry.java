@@ -8,6 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 public class KnowledgeVersionRegistry {
 
@@ -58,6 +59,15 @@ public class KnowledgeVersionRegistry {
             String versionId,
             KnowledgeReleaseValidator validator
     ) {
+        return publish(versionId, validator, ignored -> {
+        });
+    }
+
+    public synchronized KnowledgeVersion publish(
+            String versionId,
+            KnowledgeReleaseValidator validator,
+            Consumer<KnowledgeVersion> activation
+    ) {
         KnowledgeVersion candidate = requireVersion(versionId);
         if (candidate.status() != KnowledgeVersionStatus.REVIEW) {
             throw new KnowledgeReleaseException("only REVIEW can be published");
@@ -68,6 +78,13 @@ public class KnowledgeVersionRegistry {
         }
 
         Instant publishedAt = clock.instant();
+        KnowledgeVersion published = candidate.withStatus(KnowledgeVersionStatus.PUBLISHED, publishedAt);
+        try {
+            activation.accept(published);
+        } catch (RuntimeException exception) {
+            throw new KnowledgeReleaseException("release activation failed", exception);
+        }
+
         KnowledgeVersion previous = versions.get(currentVersionId);
         if (previous != null) {
             versions.put(previous.versionId(), previous.withStatus(
@@ -75,7 +92,6 @@ public class KnowledgeVersionRegistry {
                     previous.publishedAt()
             ));
         }
-        KnowledgeVersion published = candidate.withStatus(KnowledgeVersionStatus.PUBLISHED, publishedAt);
         versions.put(versionId, published);
         currentVersionId = versionId;
         return published;

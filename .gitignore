@@ -47,6 +47,7 @@ Thumbs.db
 # 正式保险资料只在本机加工，避免误提交原始文件。
 docs/source-materials/product-36743/*
 !docs/source-materials/product-36743/README.md
+!docs/source-materials/product-36743/资料清单.md.example
 .env.*.local
 
 # Logs

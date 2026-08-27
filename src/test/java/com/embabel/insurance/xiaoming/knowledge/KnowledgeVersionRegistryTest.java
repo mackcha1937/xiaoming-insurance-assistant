@@ -102,6 +102,28 @@ class KnowledgeVersionRegistryTest {
     }
 
     @Test
+    void activationFailureKeepsThePreviousVersionPublished() {
+        registry.registerDraft(draft("v2", KnowledgeFixtures.PRODUCT_ID));
+        registry.submitForReview("v2");
+
+        assertThrows(
+                KnowledgeReleaseException.class,
+                () -> registry.publish(
+                        "v2",
+                        ignored -> List.of(),
+                        ignored -> {
+                            throw new IllegalStateException("snapshot unavailable");
+                        }
+                )
+        );
+
+        assertEquals("baseline", registry.current().versionId());
+        assertEquals(KnowledgeVersionStatus.PUBLISHED, registry.current().status());
+        assertEquals(KnowledgeVersionStatus.REVIEW,
+                registry.find(KnowledgeFixtures.PRODUCT_ID, "v2").orElseThrow().status());
+    }
+
+    @Test
     void publishAtomicallySwitchesVersionAndDocumentStatus() {
         registry.registerDraft(draft("v2", KnowledgeFixtures.PRODUCT_ID));
         registry.submitForReview("v2");

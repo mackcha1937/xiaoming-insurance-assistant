@@ -25,6 +25,11 @@ embabel:
       best: deepseek-reasoner
 
   agent:
+    shell:
+      # This project is an H5/API application; do not let the interactive shell block startup runners.
+      interactive:
+        enabled: false
+      web-application-type: servlet
     platform:
       models:
         deepseek:
@@ -79,6 +84,11 @@ xiaoming:
     rrf-k: 60
     evidence-threshold: 0.01
     degraded-vector-threshold: 0.8
+  knowledge-import:
+    # Explicit opt-in only. The source directory contains ignored local UAT materials.
+    enabled: ${XIAOMING_KNOWLEDGE_IMPORT_ENABLED:false}
+    source-directory: ${XIAOMING_KNOWLEDGE_SOURCE_DIRECTORY:}
+    spreadsheet-scan-mode: ${XIAOMING_SPREADSHEET_SCAN_MODE:STRUCTURE_ONLY}
 
 # ============================================================
 # 可观测性 — Actuator + Prometheus（已开启）

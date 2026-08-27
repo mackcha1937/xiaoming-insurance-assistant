@@ -1,6 +1,5 @@
 package com.embabel.insurance.xiaoming.api;
 
-import com.embabel.insurance.xiaoming.config.XiaomingProductProperties;
 import com.embabel.insurance.xiaoming.contract.XiaomingResponse;
 import com.embabel.insurance.xiaoming.knowledge.KnowledgeVersion;
 import com.embabel.insurance.xiaoming.knowledge.KnowledgeVersionRegistry;
@@ -18,14 +17,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class XiaomingKnowledgeController {
 
     private final KnowledgeVersionRegistry registry;
-    private final XiaomingProductProperties properties;
 
-    public XiaomingKnowledgeController(
-            KnowledgeVersionRegistry registry,
-            XiaomingProductProperties properties
-    ) {
+    public XiaomingKnowledgeController(KnowledgeVersionRegistry registry) {
         this.registry = registry;
-        this.properties = properties;
     }
 
     @GetMapping("/current")
@@ -47,7 +41,7 @@ public class XiaomingKnowledgeController {
                         ? "当前正式知识版本已加载。"
                         : "知识底座已就绪，正式产品资料尚未导入。",
                 summary,
-                properties.currentKnowledgeVersion(),
+                current.versionId(),
                 XiaomingRequestContext.traceId(request),
                 XiaomingRequestContext.requestId(request)
         );

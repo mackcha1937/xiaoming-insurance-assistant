@@ -35,6 +35,18 @@ class RuleEngineTest {
     }
 
     @Test
+    void evaluatesOpenAndClosedNumericBounds() {
+        assertEquals(RuleMatchStatus.NOT_MATCHED,
+                evaluate(predicate("age", ComparisonOperator.LESS_THAN, 55, null), Map.of("age", 55)).status());
+        assertEquals(RuleMatchStatus.MATCHED,
+                evaluate(predicate("age", ComparisonOperator.LESS_THAN_OR_EQUAL, 55, null), Map.of("age", 55)).status());
+        assertEquals(RuleMatchStatus.NOT_MATCHED,
+                evaluate(predicate("age", ComparisonOperator.GREATER_THAN, 18, null), Map.of("age", 18)).status());
+        assertEquals(RuleMatchStatus.MATCHED,
+                evaluate(predicate("age", ComparisonOperator.GREATER_THAN_OR_EQUAL, 18, null), Map.of("age", 18)).status());
+    }
+
+    @Test
     void evaluatesCollectionsAndDateWindows() {
         assertEquals(
                 RuleMatchStatus.MATCHED,

@@ -31,7 +31,7 @@ class KnowledgeStatusControllerTest {
                 properties,
                 Clock.fixed(Instant.parse("2026-08-27T00:00:00Z"), ZoneOffset.UTC)
         );
-        XiaomingKnowledgeController controller = new XiaomingKnowledgeController(registry, properties);
+        XiaomingKnowledgeController controller = new XiaomingKnowledgeController(registry);
 
         XiaomingResponse<KnowledgeVersionSummary> response = controller.current(
                 new MockHttpServletRequest()
