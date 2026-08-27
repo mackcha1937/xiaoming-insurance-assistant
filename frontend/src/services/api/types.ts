@@ -100,3 +100,35 @@ export interface ChatRequest {
   context: Record<string, unknown>
   knowledgeVersionHint?: string
 }
+
+export interface OccupationCandidate {
+  occupationId: string
+  name: string
+  path: string[]
+}
+
+export interface OccupationSearchResult {
+  queryToken: string
+  candidates: OccupationCandidate[]
+  requiresMoreDetail: boolean
+  prompt: string
+  knowledgeVersion: string
+  occupationVersion: string
+}
+
+export interface OccupationConfirmRequest {
+  productId: '36743'
+  occupationId: string
+  knowledgeVersion: string
+}
+
+export interface OccupationConfirmationResult {
+  matched: boolean
+  occupationId: string
+  name: string
+  category: number | null
+  path: string[]
+  knowledgeVersion: string
+  occupationVersion: string
+  notice: string
+}

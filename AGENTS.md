@@ -51,7 +51,8 @@
 
 ## 当前阶段
 
-当前为 Phase 02：知识版本、规则与证据底座。范围见 `docs/development-roadmap.md` 和
-`docs/acceptance/phase-02-checklist.md`。本阶段只建设知识导入、版本隔离、页码、切分、
-BM25/向量检索端口、RRF、规则条件树和证据门禁；不得提前启用真实问答或 Phase 03—07
-的职业、历史、健康、清单与投保外链能力。
+当前为 Phase 04：职业查询。范围见 `docs/development-roadmap.md` 和
+`docs/acceptance/phase-04-checklist.md`。本阶段只建设职业标准化、最多五项候选、
+`occupationId` 人工确认、当前发布版本精确查询、未命中处理、前端取消/过期响应保护和
+职业搜索性能验收；不得提前实现 Phase 05—07 的历史会话、动态资料清单、健康告知或
+正式投保外链能力。

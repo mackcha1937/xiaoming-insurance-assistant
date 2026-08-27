@@ -15,10 +15,11 @@ import java.util.regex.Pattern;
 @Service
 public class IntentGuardService {
 
-    private static final Set<XiaomingIntent> PHASE_03_INTENTS = Set.of(
+    private static final Set<XiaomingIntent> ACTIVE_INTENTS = Set.of(
             XiaomingIntent.COVERAGE_RESPONSIBILITY,
             XiaomingIntent.EXCLUSIONS_AND_LIMITATIONS,
             XiaomingIntent.APPLICATION_RULES,
+            XiaomingIntent.OCCUPATION_QUERY,
             XiaomingIntent.APPLICATION_PROCESS,
             XiaomingIntent.CLAIMS_PATH
     );
@@ -83,8 +84,8 @@ public class IntentGuardService {
                 .filter(entry -> entry.getValue().stream().anyMatch(normalized::contains))
                 .map(Map.Entry::getKey)
                 .toList();
-        List<XiaomingIntent> allowed = detected.stream().filter(PHASE_03_INTENTS::contains).toList();
-        List<XiaomingIntent> unavailable = detected.stream().filter(intent -> !PHASE_03_INTENTS.contains(intent)).toList();
+        List<XiaomingIntent> allowed = detected.stream().filter(ACTIVE_INTENTS::contains).toList();
+        List<XiaomingIntent> unavailable = detected.stream().filter(intent -> !ACTIVE_INTENTS.contains(intent)).toList();
         boolean refusedPart = OUT_OF_SCOPE_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(normalized).find());
 
         if (refusedPart && onlyIncidentalCoverageKeyword(normalized, allowed)) {

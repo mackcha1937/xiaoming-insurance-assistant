@@ -111,6 +111,10 @@ public class XiaomingConversationService {
                 && !request.getKnowledgeVersionHint().equals(knowledgeVersion)) {
             return conflict("请求的知识版本与当前已发布版本不一致。", knowledgeVersion, traceId, requestId);
         }
+        if (guard.allowedIntents().size() == 1
+                && guard.allowedIntents().contains(XiaomingIntent.OCCUPATION_QUERY)) {
+            return occupationHandoff(knowledgeVersion, traceId, requestId);
+        }
 
         Map<String, Object> facts = factExtractor.extract(request.getMessage(), request.getContext());
         if (needsInsuredAge(request.getMessage(), facts, guard.allowedIntents())) {
@@ -121,6 +125,16 @@ public class XiaomingConversationService {
         Map<String, XiaomingEvidence> evidenceById = new LinkedHashMap<>();
         List<String> failedReasons = new ArrayList<>();
         for (XiaomingIntent intent : guard.allowedIntents()) {
+            if (intent == XiaomingIntent.OCCUPATION_QUERY) {
+                cards.add(new XiaomingCard(
+                        "occupation-confirmation-required",
+                        "1.0",
+                        CardType.QUESTION,
+                        "职业需要先确认",
+                        Map.of("message", "请使用职业查询面板搜索并选择候选；确认前不会判断职业类别。")
+                ));
+                continue;
+            }
             IntentAnswer intentAnswer = answerIntent(intent, request.getMessage(), facts, snapshot);
             if (!intentAnswer.success()) {
                 failedReasons.add(intentAnswer.failureReason());
@@ -421,9 +435,36 @@ public class XiaomingConversationService {
                 new XiaomingSuggestion("coverage", "保障责任", "这款产品主要保什么？", XiaomingIntent.COVERAGE_RESPONSIBILITY),
                 new XiaomingSuggestion("exclusions", "免责限制", "哪些情况不承担保险责任？", XiaomingIntent.EXCLUSIONS_AND_LIMITATIONS),
                 new XiaomingSuggestion("rules", "投保规则", "投保年龄和缴费期限有什么要求？", XiaomingIntent.APPLICATION_RULES),
+                new XiaomingSuggestion("occupation", "职业查询", "我想查询职业分类", XiaomingIntent.OCCUPATION_QUERY),
                 new XiaomingSuggestion("process", "投保流程", "投保前需要经过哪些步骤？", XiaomingIntent.APPLICATION_PROCESS),
                 new XiaomingSuggestion("claims", "理赔路径", "发生保险事故后如何报案？", XiaomingIntent.CLAIMS_PATH)
         );
+    }
+
+    private ConversationResult occupationHandoff(String version, String traceId, String requestId) {
+        String message = "职业需要先搜索并由顾问确认候选；确认前不会显示职业类别或可承保结论。";
+        XiaomingResponse<Map<String, Object>> response = new XiaomingResponse<>(
+                BusinessStatus.NEED_INPUT,
+                XiaomingIntent.OCCUPATION_QUERY,
+                message,
+                Map.of("target", "occupation-search"),
+                List.of(new XiaomingCard(
+                        "occupation-search-required",
+                        "1.0",
+                        CardType.QUESTION,
+                        "打开职业查询",
+                        Map.of("message", "请在职业查询面板输入一个职业名称或日常工作内容。")
+                )),
+                List.of(),
+                suggestions(),
+                List.of(),
+                List.of(),
+                version,
+                traceId,
+                requestId,
+                null
+        );
+        return new ConversationResult(HttpStatus.OK, response);
     }
 
     private static Map<XiaomingIntent, Set<DocumentType>> documentTypes() {

@@ -57,6 +57,10 @@ export const useConversationStore = defineStore('conversation', () => {
     await execute(lastFailedOperation.value)
   }
 
+  function setContextValue(name: string, value: unknown): void {
+    context.value = { ...context.value, [name]: value }
+  }
+
   async function execute(operation: IdempotentChatRequest): Promise<void> {
     pending.value = true
     try {
@@ -109,6 +113,7 @@ export const useConversationStore = defineStore('conversation', () => {
     send,
     provideField,
     retry,
+    setContextValue,
     reset,
   }
 })

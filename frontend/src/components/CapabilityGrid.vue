@@ -6,13 +6,14 @@ defineProps<{
 }>()
 
 const emit = defineEmits<{
-  select: [prompt: string]
+  select: [intent: CapabilityDescriptor['intent'], prompt: string]
 }>()
 
 const prompts: Record<string, string> = {
   COVERAGE_RESPONSIBILITY: '这款产品主要保什么？',
   EXCLUSIONS_AND_LIMITATIONS: '哪些情况不承担保险责任？',
   APPLICATION_RULES: '投保年龄和缴费期限有什么要求？',
+  OCCUPATION_QUERY: '我想查询职业分类',
   APPLICATION_PROCESS: '投保前需要经过哪些步骤？',
   CLAIMS_PATH: '发生保险事故后如何报案？',
 }
@@ -25,7 +26,7 @@ const prompts: Record<string, string> = {
         <p class="eyebrow">限定域能力</p>
         <h2 id="capability-title">你可以这样问我</h2>
       </div>
-      <span>阶段 3 · 已开放 5 项</span>
+      <span>阶段 4 · 已开放 6 项</span>
     </div>
 
     <ul class="capability-grid" aria-describedby="capability-help">
@@ -35,7 +36,7 @@ const prompts: Record<string, string> = {
           :disabled="!capability.enabled"
           :class="{ enabled: capability.enabled }"
           :aria-label="`${capability.label}，${capability.enabled ? '当前可用' : '后续阶段开放'}`"
-          @click="emit('select', prompts[capability.intent] ?? capability.label)"
+          @click="emit('select', capability.intent, prompts[capability.intent] ?? capability.label)"
         >
           <span class="capability-index" aria-hidden="true">{{ String(index + 1).padStart(2, '0') }}</span>
           <span>{{ capability.label }}</span>
@@ -44,7 +45,7 @@ const prompts: Record<string, string> = {
       </li>
     </ul>
     <p id="capability-help" class="supporting-copy">
-      当前开放保障责任、免责限制、投保规则、投保流程和理赔路径；其余能力按阶段验收后开放。
+      当前开放保障责任、免责限制、投保规则、职业查询、投保流程和理赔路径；其余能力按阶段验收后开放。
     </p>
   </section>
 </template>

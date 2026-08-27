@@ -102,6 +102,9 @@ export const ACTION_TYPES = [
   "SELECT_CAPABILITY",
   "SUBMIT_MESSAGE",
   "PROVIDE_FIELD",
+  "SELECT_OCCUPATION",
+  "CONFIRM_OCCUPATION",
+  "REQUERY_OCCUPATION",
   "VIEW_EVIDENCE",
   "RETRY_REQUEST",
   "RETURN_TO_ASSISTANT"
@@ -111,6 +114,8 @@ export type ActionType = (typeof ACTION_TYPES)[number]
 export const CARD_TYPES = [
   "NOTICE",
   "QUESTION",
-  "SUMMARY"
+  "SUMMARY",
+  "OCCUPATION_CANDIDATES",
+  "OCCUPATION_RESULT"
 ] as const
 export type CardType = (typeof CARD_TYPES)[number]

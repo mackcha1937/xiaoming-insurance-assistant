@@ -4,7 +4,12 @@ import { flushPromises, mount } from '@vue/test-utils'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import XiaomingPage from '@/views/XiaomingPage.vue'
-import type { ProductContext, XiaomingResponse } from '@/services/api/types'
+import type {
+  OccupationConfirmationResult,
+  OccupationSearchResult,
+  ProductContext,
+  XiaomingResponse,
+} from '@/services/api/types'
 import { INTENTS } from '@/services/generated/contracts'
 
 const product: ProductContext = {
@@ -21,6 +26,7 @@ const product: ProductContext = {
       'COVERAGE_RESPONSIBILITY',
       'EXCLUSIONS_AND_LIMITATIONS',
       'APPLICATION_RULES',
+      'OCCUPATION_QUERY',
       'APPLICATION_PROCESS',
       'CLAIMS_PATH',
     ].includes(code),
@@ -73,11 +79,73 @@ const chatPayload: XiaomingResponse<Record<string, unknown>> = {
   error: null,
 }
 
+const occupationSearchPayload: XiaomingResponse<OccupationSearchResult> = {
+  status: 'SUCCESS',
+  intent: 'OCCUPATION_QUERY',
+  message: '找到一个待确认职业。',
+  data: {
+    queryToken: 'query-token-from-request',
+    candidates: [{
+      occupationId: '1963061194759143433',
+      name: '计算机程序设计员',
+      path: ['计算机与互联网业人员', '软件和信息技术服务人员', '计算机程序设计员'],
+    }],
+    requiresMoreDetail: false,
+    prompt: '找到一个待确认职业。确认前不会显示职业类别或可承保结论。',
+    knowledgeVersion: 'knowledge-test',
+    occupationVersion: 'occupation-test',
+  },
+  cards: [],
+  evidence: [],
+  suggestions: [],
+  actions: [],
+  missingFields: [],
+  knowledgeVersion: 'knowledge-test',
+  traceId: 'trace-occupation-search',
+  requestId: 'request-occupation-search',
+  error: null,
+}
+
+const occupationConfirmPayload: XiaomingResponse<OccupationConfirmationResult> = {
+  status: 'SUCCESS',
+  intent: 'OCCUPATION_QUERY',
+  message: '已按当前职业表精确确认。',
+  data: {
+    matched: true,
+    occupationId: '1963061194759143433',
+    name: '计算机程序设计员',
+    category: 1,
+    path: ['计算机与互联网业人员', '软件和信息技术服务人员', '计算机程序设计员'],
+    knowledgeVersion: 'knowledge-test',
+    occupationVersion: 'occupation-test',
+    notice: '该结果不代表保险公司最终承保结论。',
+  },
+  cards: [],
+  evidence: [],
+  suggestions: [],
+  actions: [],
+  missingFields: [],
+  knowledgeVersion: 'knowledge-test',
+  traceId: 'trace-occupation-confirm',
+  requestId: 'request-occupation-confirm',
+  error: null,
+}
+
 describe('Xiaoming Phase 03 page', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL) => {
-      const body = String(input).endsWith('/product-context') ? payload : chatPayload
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      let body: unknown = chatPayload
+      if (url.endsWith('/product-context')) body = payload
+      if (url.includes('/occupations/search')) {
+        const token = new URL(url, 'http://localhost').searchParams.get('queryToken') ?? ''
+        body = {
+          ...occupationSearchPayload,
+          data: { ...occupationSearchPayload.data!, queryToken: token },
+        }
+      }
+      if (url.endsWith('/occupations/confirm') && init?.method === 'POST') body = occupationConfirmPayload
       return new Response(JSON.stringify(body), {
         status: 200,
         headers: { 'Content-Type': 'application/json' },
@@ -85,15 +153,15 @@ describe('Xiaoming Phase 03 page', () => {
     }))
   })
 
-  it('shows the passwordless POC boundary and only five enabled capabilities', async () => {
+  it('shows the passwordless POC boundary and six enabled capabilities', async () => {
     const wrapper = mount(XiaomingPage, { attachTo: document.body })
     await flushPromises()
 
     expect(wrapper.text()).toContain('暂不登录')
     expect(wrapper.text()).toContain('邀请码准入')
     expect(wrapper.findAll('.capability-grid button')).toHaveLength(9)
-    expect(wrapper.findAll('.capability-grid button:not([disabled])')).toHaveLength(5)
-    expect(wrapper.findAll('.capability-grid button[disabled]')).toHaveLength(4)
+    expect(wrapper.findAll('.capability-grid button:not([disabled])')).toHaveLength(6)
+    expect(wrapper.findAll('.capability-grid button[disabled]')).toHaveLength(3)
     expect(wrapper.find('textarea').attributes('disabled')).toBeUndefined()
     expect(wrapper.find('input[type="password"]').exists()).toBe(false)
   })
@@ -109,6 +177,34 @@ describe('Xiaoming Phase 03 page', () => {
     expect(wrapper.find('.answer-card').exists()).toBe(true)
     expect(wrapper.find('.evidence-panel summary').text()).toContain('原文依据')
     expect(wrapper.find('.evidence-panel').text()).toContain('主险条款.pdf')
+  })
+
+  it('requires candidate selection before revealing an occupation category', async () => {
+    const wrapper = mount(XiaomingPage, { attachTo: document.body })
+    await flushPromises()
+
+    const occupationButton = wrapper.findAll('.capability-grid button')
+      .find(button => button.text().includes('职业查询'))
+    expect(occupationButton).toBeDefined()
+    await occupationButton!.trigger('click')
+
+    expect(wrapper.find('.occupation-panel').exists()).toBe(true)
+    await wrapper.find('#occupation-query').setValue('程序员')
+    await wrapper.find('.occupation-search-form').trigger('submit')
+    await flushPromises()
+
+    expect(wrapper.findAll('.occupation-candidates label')).toHaveLength(1)
+    expect(wrapper.find('.occupation-candidates').text()).not.toContain('1 类')
+    expect(wrapper.find('.primary-action').attributes('disabled')).toBeDefined()
+
+    await wrapper.find('.occupation-candidates input').setValue(true)
+    expect(wrapper.find('.primary-action').attributes('disabled')).toBeUndefined()
+    await wrapper.find('.primary-action').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('.occupation-result').text()).toContain('1 类')
+    expect(wrapper.find('.occupation-result').text()).toContain('occupation-test')
+    expect(wrapper.find('.occupation-result').text()).toContain('不代表保险公司最终承保结论')
   })
 
   it('has no automatically detectable structural accessibility violations', async () => {

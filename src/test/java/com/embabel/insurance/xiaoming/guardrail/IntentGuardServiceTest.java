@@ -13,7 +13,7 @@ class IntentGuardServiceTest {
     private final IntentGuardService service = new IntentGuardService();
 
     @Test
-    void shouldRecognizeFortyRepresentativePhaseThreeQuestions() {
+    void shouldRecognizeRepresentativeActiveQuestions() {
         List<String> questions = List.of(
                 "这款产品保什么", "基本责任有哪些", "可选责任有哪些", "轻症怎么保障",
                 "中症责任是什么", "重疾赔付次数", "疾病关爱责任", "身故责任是什么",
@@ -31,6 +31,7 @@ class IntentGuardServiceTest {
                 service.evaluate(question).status() == IntentGuardStatus.ALLOWED,
                 () -> "should be allowed: " + question
         ));
+        assertEquals(IntentGuardStatus.ALLOWED, service.evaluate("职业分类怎么查").status());
     }
 
     @Test
@@ -55,7 +56,7 @@ class IntentGuardServiceTest {
         assertEquals(IntentGuardStatus.REFUSED, service.evaluate("我这个病该怎么治疗").status());
         assertEquals(IntentGuardStatus.REFUSED, service.evaluate("能保证核保通过吗").status());
         assertEquals(IntentGuardStatus.NOT_AVAILABLE, service.evaluate("健康告知有哪些").status());
-        assertEquals(IntentGuardStatus.NOT_AVAILABLE, service.evaluate("职业分类怎么查").status());
+        assertEquals(IntentGuardStatus.ALLOWED, service.evaluate("职业分类怎么查").status());
 
         IntentGuardDecision mixed = service.evaluate("保障责任是什么，并推荐其他保险");
         assertEquals(IntentGuardStatus.MIXED, mixed.status());

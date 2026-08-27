@@ -104,6 +104,17 @@ class XiaomingConversationServiceTest {
     }
 
     @Test
+    void shouldRequireOccupationCandidateConfirmationInsteadOfGuessingCategory() {
+        ConversationResult result = service(publishedStore(), new EvidenceOnlyAnswerGenerator())
+                .answer(request("职业分类怎么查", Map.of(), null), "trace-occupation", "request-occupation");
+
+        assertEquals(BusinessStatus.NEED_INPUT, result.response().status());
+        assertEquals("OCCUPATION_QUERY", result.response().intent().name());
+        assertTrue(result.response().message().contains("确认前不会显示职业类别"));
+        assertTrue(result.response().evidence().isEmpty());
+    }
+
+    @Test
     void shouldFailClosedForMissingOrMismatchedKnowledge() {
         ConversationResult missing = service(new KnowledgeSnapshotStore(), new EvidenceOnlyAnswerGenerator())
                 .answer(request("保障责任是什么", Map.of(), null), "trace-6", "request-6");

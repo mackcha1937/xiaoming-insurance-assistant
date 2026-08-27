@@ -20,6 +20,7 @@ const foundationContext: ProductContext = {
       'COVERAGE_RESPONSIBILITY',
       'EXCLUSIONS_AND_LIMITATIONS',
       'APPLICATION_RULES',
+      'OCCUPATION_QUERY',
       'APPLICATION_PROCESS',
       'CLAIMS_PATH',
     ].includes(code),

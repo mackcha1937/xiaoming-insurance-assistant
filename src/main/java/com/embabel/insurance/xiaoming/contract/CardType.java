@@ -3,5 +3,7 @@ package com.embabel.insurance.xiaoming.contract;
 public enum CardType {
     NOTICE,
     QUESTION,
-    SUMMARY
+    SUMMARY,
+    OCCUPATION_CANDIDATES,
+    OCCUPATION_RESULT
 }

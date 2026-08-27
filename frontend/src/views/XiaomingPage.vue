@@ -1,21 +1,33 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
 import CapabilityGrid from '@/components/CapabilityGrid.vue'
 import ConversationPanel from '@/components/ConversationPanel.vue'
+import OccupationPanel from '@/components/OccupationPanel.vue'
 import PrivacyNotice from '@/components/PrivacyNotice.vue'
 import { useNetworkStore } from '@/stores/network'
 import { useProductStore } from '@/stores/product'
 import { useUiStore } from '@/stores/ui'
 import { useConversationStore } from '@/stores/conversation'
+import type { XiaomingIntent } from '@/services/generated/contracts'
 
 const productStore = useProductStore()
 const networkStore = useNetworkStore()
 const uiStore = useUiStore()
 const conversationStore = useConversationStore()
+const occupationOpen = ref(false)
 
-function ask(prompt: string): void {
+async function ask(intent: XiaomingIntent, prompt: string): Promise<void> {
+  if (intent === 'OCCUPATION_QUERY') {
+    occupationOpen.value = true
+    await nextTick()
+    const panel = document.querySelector('#occupation-search')
+    if (typeof panel?.scrollIntoView === 'function') {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    return
+  }
   void conversationStore.send(prompt)
 }
 
@@ -78,6 +90,7 @@ onUnmounted(() => {
       </div>
 
       <CapabilityGrid :capabilities="productStore.context.capabilities" @select="ask" />
+      <OccupationPanel :open="occupationOpen" />
       <ConversationPanel />
     </main>
 

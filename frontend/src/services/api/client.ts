@@ -1,5 +1,12 @@
 import { API_BASE_PATH } from '@/services/generated/contracts'
-import type { ChatRequest, ProductContext, XiaomingResponse } from './types'
+import type {
+  ChatRequest,
+  OccupationConfirmationResult,
+  OccupationConfirmRequest,
+  OccupationSearchResult,
+  ProductContext,
+  XiaomingResponse,
+} from './types'
 
 const SAFE_ID_PREFIX = 'xiaoming-web-'
 
@@ -11,6 +18,11 @@ export interface RequestIdentity {
 export interface IdempotentChatRequest {
   identity: Required<RequestIdentity>
   execute: () => Promise<XiaomingResponse<Record<string, unknown>>>
+}
+
+export interface IdempotentOccupationRequest {
+  identity: Required<RequestIdentity>
+  execute: () => Promise<XiaomingResponse<OccupationConfirmationResult>>
 }
 
 export class ApiResponseError extends Error {
@@ -68,6 +80,39 @@ export function prepareChatRequest(payload: ChatRequest): IdempotentChatRequest 
   return {
     identity,
     execute: () => request<Record<string, unknown>>('/chat', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, identity),
+  }
+}
+
+export function searchOccupations(
+  query: string,
+  queryToken: string,
+  signal: AbortSignal,
+  knowledgeVersionHint?: string,
+): Promise<XiaomingResponse<OccupationSearchResult>> {
+  const parameters = new URLSearchParams({
+    productId: '36743',
+    q: query,
+    queryToken,
+  })
+  if (knowledgeVersionHint !== undefined && knowledgeVersionHint.length > 0) {
+    parameters.set('knowledgeVersionHint', knowledgeVersionHint)
+  }
+  return request<OccupationSearchResult>(`/occupations/search?${parameters.toString()}`, { signal })
+}
+
+export function prepareOccupationConfirmation(
+  payload: OccupationConfirmRequest,
+): IdempotentOccupationRequest {
+  const identity: Required<RequestIdentity> = {
+    requestId: createRequestId(),
+    idempotencyKey: createIdempotencyKey(),
+  }
+  return {
+    identity,
+    execute: () => request<OccupationConfirmationResult>('/occupations/confirm', {
       method: 'POST',
       body: JSON.stringify(payload),
     }, identity),
