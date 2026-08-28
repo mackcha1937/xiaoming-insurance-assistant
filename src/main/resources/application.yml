@@ -1,6 +1,10 @@
 spring:
   application:
     name: smart-insurance-platform
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 51MB
   datasource:
     url: ${MYSQL_URL:jdbc:mysql://localhost:3306/embabel_insurance?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&createDatabaseIfNotExist=true}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -95,6 +99,12 @@ xiaoming:
     top-k: 6
     max-evidence-characters: 6000
     max-answer-characters: 1200
+  health:
+    max-files: 5
+    max-file-bytes: 10485760
+    max-pdf-pages: 30
+    max-text-characters: 20000
+    minimum-confidence: 0.5
 
 # ============================================================
 # 可观测性 — Actuator + Prometheus（已开启）

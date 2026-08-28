@@ -22,6 +22,7 @@ public class IntentGuardService {
             XiaomingIntent.OCCUPATION_QUERY,
             XiaomingIntent.APPLICATION_PROCESS,
             XiaomingIntent.MATERIAL_CHECKLIST,
+            XiaomingIntent.HEALTH_DISCLOSURE,
             XiaomingIntent.CLAIMS_PATH
     );
 

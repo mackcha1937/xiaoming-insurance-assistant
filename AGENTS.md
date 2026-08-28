@@ -51,7 +51,7 @@
 
 ## 当前阶段
 
-当前为 Phase 05：会话历史与动态资料清单。范围见 `docs/development-roadmap.md` 和
-`docs/acceptance/phase-05-checklist.md`。本阶段只建设 IndexedDB 版本化存储、会话原子保存、
-新建/恢复/改名/删除、客户隔离、动态资料清单、勾选持久化和知识版本更新提示；不得提前
-实现 Phase 06—07 的健康资料上传、健康告知匹配或正式投保外链能力。
+当前为 Phase 06：健康告知三态流程。范围见 `docs/development-roadmap.md` 和
+`docs/acceptance/phase-06-checklist.md`。本阶段只建设授权、文件/文字事实提取、来源定位、
+人工确认、HIT/NO_HIT_FOUND/INSUFFICIENT 规则匹配、临时文件清理和确认事实本机隔离；
+不得提前实现 Phase 07 的正式投保外链、投保状态回传或健康补件/核保结论能力。

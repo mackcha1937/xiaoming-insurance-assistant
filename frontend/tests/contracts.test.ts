@@ -10,7 +10,7 @@ import {
   PRODUCT,
 } from '@/services/generated/contracts'
 
-describe('generated Phase 05 contract', () => {
+describe('generated Phase 06 contract', () => {
   it('freezes the product, API prefix and domain boundaries', () => {
     expect(API_BASE_PATH).toBe('/api/v1/xiaoming')
     expect(PRODUCT.productId).toBe('36743')
@@ -18,7 +18,7 @@ describe('generated Phase 05 contract', () => {
     expect(BUSINESS_STATUSES).toHaveLength(6)
     expect(INTENTS).toHaveLength(9)
     expect(ERROR_CODES).toHaveLength(9)
-    expect(ACTION_TYPES).toHaveLength(12)
+    expect(ACTION_TYPES).toHaveLength(17)
     expect(CARD_TYPES).toEqual([
       'NOTICE',
       'QUESTION',
@@ -26,6 +26,8 @@ describe('generated Phase 05 contract', () => {
       'OCCUPATION_CANDIDATES',
       'OCCUPATION_RESULT',
       'MATERIAL_CHECKLIST',
+      'HEALTH_FACTS',
+      'HEALTH_MATCH_RESULT',
     ])
   })
 

@@ -1,6 +1,8 @@
 import type {
   ChecklistGenerateRequest,
   ChecklistItem,
+  HealthFact,
+  HealthMatchResult,
   XiaomingResponse,
 } from '@/services/api/types'
 
@@ -40,10 +42,19 @@ export interface StoredChecklist {
   updatedAt: number
 }
 
+export interface StoredHealthCase {
+  conversationId: string
+  knowledgeVersion: string
+  facts: HealthFact[]
+  result: HealthMatchResult
+  updatedAt: number
+}
+
 export interface ConversationSnapshot {
   conversation: StoredConversation
   messages: StoredMessage[]
   checklist: StoredChecklist | null
+  healthCase: StoredHealthCase | null
 }
 
 export type StorageErrorCode = 'UNAVAILABLE' | 'MIGRATION_FAILED' | 'STORAGE_FAILED' | 'NOT_FOUND'
@@ -170,7 +181,7 @@ export class ConversationRepository {
   async load(id: string): Promise<ConversationSnapshot> {
     const db = await openConversationDb()
     try {
-      const transaction = db.transaction(['conversations', 'messages', 'checklists'], 'readonly')
+      const transaction = db.transaction(['conversations', 'messages', 'checklists', 'healthFacts'], 'readonly')
       const conversationPromise = requestResult<StoredConversation | undefined>(
         transaction.objectStore('conversations').get(id),
       )
@@ -180,10 +191,14 @@ export class ConversationRepository {
       const checklistPromise = requestResult<StoredChecklist | undefined>(
         transaction.objectStore('checklists').get(id),
       )
-      const [conversation, messages, checklist] = await Promise.all([
+      const healthCasePromise = requestResult<StoredHealthCase | undefined>(
+        transaction.objectStore('healthFacts').get(id),
+      )
+      const [conversation, messages, checklist, healthCase] = await Promise.all([
         conversationPromise,
         messagesPromise,
         checklistPromise,
+        healthCasePromise,
       ])
       await transactionDone(transaction)
       if (conversation === undefined) {
@@ -193,6 +208,7 @@ export class ConversationRepository {
         conversation,
         messages: messages.sort((left, right) => left.createdAt - right.createdAt),
         checklist: checklist ?? null,
+        healthCase: healthCase ?? null,
       }
     } catch (error) {
       if (error instanceof ConversationStorageError) throw error
@@ -206,7 +222,7 @@ export class ConversationRepository {
     const db = await openConversationDb()
     try {
       const transaction = db.transaction(
-        ['conversations', 'messages', 'checklists', 'preferences'],
+        ['conversations', 'messages', 'checklists', 'healthFacts', 'preferences'],
         'readwrite',
       )
       transaction.objectStore('conversations').put(snapshot.conversation)
@@ -219,6 +235,9 @@ export class ConversationRepository {
       const checklistStore = transaction.objectStore('checklists')
       if (snapshot.checklist === null) checklistStore.delete(snapshot.conversation.id)
       else checklistStore.put(snapshot.checklist)
+      const healthStore = transaction.objectStore('healthFacts')
+      if (snapshot.healthCase === null) healthStore.delete(snapshot.conversation.id)
+      else healthStore.put(snapshot.healthCase)
       transaction.objectStore('preferences').put({
         key: 'lastConversationId',
         value: snapshot.conversation.id,

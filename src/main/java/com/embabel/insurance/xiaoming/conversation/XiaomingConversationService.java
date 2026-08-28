@@ -119,6 +119,10 @@ public class XiaomingConversationService {
                 && guard.allowedIntents().contains(XiaomingIntent.MATERIAL_CHECKLIST)) {
             return checklistHandoff(knowledgeVersion, traceId, requestId);
         }
+        if (guard.allowedIntents().size() == 1
+                && guard.allowedIntents().contains(XiaomingIntent.HEALTH_DISCLOSURE)) {
+            return healthHandoff(knowledgeVersion, traceId, requestId);
+        }
 
         Map<String, Object> facts = factExtractor.extract(request.getMessage(), request.getContext());
         if (needsInsuredAge(request.getMessage(), facts, guard.allowedIntents())) {
@@ -146,6 +150,16 @@ public class XiaomingConversationService {
                         CardType.QUESTION,
                         "资料清单需要补充条件",
                         Map.of("message", "请使用动态资料清单面板补充年龄、投保关系、证件、受益人和健康状态。")
+                ));
+                continue;
+            }
+            if (intent == XiaomingIntent.HEALTH_DISCLOSURE) {
+                cards.add(new XiaomingCard(
+                        "health-authorization-required",
+                        "1.0",
+                        CardType.QUESTION,
+                        "健康事实需要先授权并确认",
+                        Map.of("message", "请使用健康告知面板阅读隐私提示；事实未经逐项确认不会执行匹配。")
                 ));
                 continue;
             }
@@ -452,6 +466,7 @@ public class XiaomingConversationService {
                 new XiaomingSuggestion("occupation", "职业查询", "我想查询职业分类", XiaomingIntent.OCCUPATION_QUERY),
                 new XiaomingSuggestion("process", "投保流程", "投保前需要经过哪些步骤？", XiaomingIntent.APPLICATION_PROCESS),
                 new XiaomingSuggestion("checklist", "资料清单", "投保前需要准备什么资料？", XiaomingIntent.MATERIAL_CHECKLIST),
+                new XiaomingSuggestion("health", "健康告知", "我想核对健康告知", XiaomingIntent.HEALTH_DISCLOSURE),
                 new XiaomingSuggestion("claims", "理赔路径", "发生保险事故后如何报案？", XiaomingIntent.CLAIMS_PATH)
         );
     }
@@ -495,6 +510,32 @@ public class XiaomingConversationService {
                         CardType.QUESTION,
                         "打开动态资料清单",
                         Map.of("message", "请在清单面板选择年龄、投保关系、证件类型、受益人设置和健康状态。")
+                )),
+                List.of(),
+                suggestions(),
+                List.of(),
+                List.of(),
+                version,
+                traceId,
+                requestId,
+                null
+        );
+        return new ConversationResult(HttpStatus.OK, response);
+    }
+
+    private ConversationResult healthHandoff(String version, String traceId, String requestId) {
+        String message = "健康告知需要先阅读隐私说明并明确授权；事实未经顾问确认不会匹配。";
+        XiaomingResponse<Map<String, Object>> response = new XiaomingResponse<>(
+                BusinessStatus.NEED_INPUT,
+                XiaomingIntent.HEALTH_DISCLOSURE,
+                message,
+                Map.of("target", "health-disclosure"),
+                List.of(new XiaomingCard(
+                        "health-authorization-required",
+                        "1.0",
+                        CardType.QUESTION,
+                        "打开健康告知核对",
+                        Map.of("message", "请先授权，再使用手工文字或支持的文件提取事实草稿。")
                 )),
                 List.of(),
                 suggestions(),

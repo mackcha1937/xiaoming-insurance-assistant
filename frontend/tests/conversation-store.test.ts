@@ -162,6 +162,7 @@ describe('conversation history store', () => {
         },
       }],
       checklist: null,
+      healthCase: null,
     })
     db.lastConversationId = id
 
@@ -202,6 +203,52 @@ describe('conversation history store', () => {
     db.failNextSave = true
     expect(await store.toggleChecklistItem('item-1', true)).toBe(false)
     expect(store.checklist?.items[0]?.checked).toBe(false)
+  })
+
+  it('isolates confirmed health results by customer and restores them after switching', async () => {
+    const store = useConversationStore()
+    await store.initialize('knowledge-v1')
+    const firstId = store.conversationId
+    expect(await store.saveHealthCase({
+      knowledgeVersion: 'knowledge-v1',
+      facts: [{
+        factId: 'health-fact-0001',
+        type: 'DISEASE',
+        code: 'HYPERTENSION',
+        label: '高血压',
+        value: '原始整段健康资料也不应留在结构化 value',
+        numericValue: null,
+        unit: null,
+        date: null,
+        polarity: 'PRESENT',
+        sourceLocation: {
+          sourceId: 'manual-text',
+          sourceLabel: '手工文字',
+          page: null,
+          line: 1,
+          excerpt: '原始整段健康资料不应写入本机历史',
+        },
+        confidence: 0.95,
+        confirmed: true,
+      }],
+      result: {
+        matchVersion: 'health-match-v1@knowledge-v1',
+        knowledgeVersion: 'knowledge-v1',
+        state: 'HIT',
+        questions: [],
+        notice: '仅供核对。',
+      },
+    })).toBe(true)
+
+    expect(store.healthCase?.facts[0]?.sourceLocation.excerpt).toBe('已确认事实（原始文字未保存）')
+    expect(store.healthCase?.facts[0]?.value).toBe('高血压')
+    expect(JSON.stringify(store.healthCase)).not.toContain('原始整段健康资料')
+
+    expect(await store.createConversation('客户 B')).toBe(true)
+    expect(store.healthCase).toBeNull()
+    expect(await store.switchConversation(firstId)).toBe(true)
+    expect(store.healthCase?.result.state).toBe('HIT')
+    expect(store.healthCase?.facts.every(fact => fact.confirmed)).toBe(true)
   })
 
   it('deletes the active customer and creates a safe empty conversation', async () => {

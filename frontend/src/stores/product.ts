@@ -23,6 +23,7 @@ const foundationContext: ProductContext = {
       'OCCUPATION_QUERY',
       'APPLICATION_PROCESS',
       'MATERIAL_CHECKLIST',
+      'HEALTH_DISCLOSURE',
       'CLAIMS_PATH',
     ].includes(code),
   })),

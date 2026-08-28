@@ -53,6 +53,17 @@ public class InputValidationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Multipart must be parsed by the servlet container. Reading it here consumes the boundary
+        // stream and makes every form field/file disappear before MultipartResolver runs. Upload
+        // count, per-file size, aggregate request size, MIME/magic and page limits are enforced by
+        // Spring multipart configuration plus the target upload service.
+        String contentType = request.getContentType();
+        if (contentType != null && contentType.toLowerCase(java.util.Locale.ROOT)
+                .startsWith("multipart/form-data")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. Content-Length 头快速检查
         long contentLength = request.getContentLengthLong();
         if (contentLength > MAX_CONTENT_LENGTH) {

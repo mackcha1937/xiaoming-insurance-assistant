@@ -8,6 +8,7 @@ import {
   type StoredChecklist,
   type StoredChecklistItem,
   type StoredConversation,
+  type StoredHealthCase,
   type StoredMessage,
   validateConversationAlias,
 } from '@/db/conversationDb'
@@ -42,6 +43,7 @@ export const useConversationStore = defineStore('conversation', () => {
   const pendingQuestion = ref<string | null>(null)
   const histories = ref<StoredConversation[]>([])
   const checklist = ref<StoredChecklist | null>(null)
+  const healthCase = ref<StoredHealthCase | null>(null)
   const initialized = ref(false)
   const storageStatus = ref<'IDLE' | 'LOADING' | 'READY' | 'ERROR'>('IDLE')
   const storageMessage = ref('')
@@ -278,6 +280,42 @@ export const useConversationStore = defineStore('conversation', () => {
     return false
   }
 
+  async function saveHealthCase(value: Omit<StoredHealthCase, 'conversationId' | 'updatedAt'>): Promise<boolean> {
+    const previous = healthCase.value
+    healthCase.value = clonePersistable({
+      ...value,
+      facts: value.facts.map(fact => ({
+        ...fact,
+        value: fact.sourceLocation.sourceId === 'manual-review'
+          ? fact.value
+          : fact.code === 'ABNORMAL_EXAM' && /建议|治疗|进一步检查|复查|住院|手术/.test(fact.value)
+            ? `${fact.label}，建议进一步检查`
+            : fact.label,
+        sourceLocation: {
+          sourceId: 'confirmed-fact',
+          sourceLabel: fact.sourceLocation.sourceLabel,
+          page: fact.sourceLocation.page,
+          line: fact.sourceLocation.line,
+          excerpt: '已确认事实（原始文字未保存）',
+        },
+      })),
+      conversationId: conversationId.value,
+      updatedAt: Date.now(),
+    })
+    conversationKnowledgeVersion.value = value.knowledgeVersion
+    if (await persistWithoutThrow()) return true
+    healthCase.value = previous
+    return false
+  }
+
+  async function clearHealthCase(): Promise<boolean> {
+    const previous = healthCase.value
+    healthCase.value = null
+    if (await persistWithoutThrow()) return true
+    healthCase.value = previous
+    return false
+  }
+
   async function clearLocalData(): Promise<boolean> {
     try {
       await repository.clearAll()
@@ -343,6 +381,7 @@ export const useConversationStore = defineStore('conversation', () => {
       conversation,
       messages: storedMessages,
       checklist: checklist.value === null ? null : clonePersistable(checklist.value),
+      healthCase: healthCase.value === null ? null : clonePersistable(healthCase.value),
     }
   }
 
@@ -392,6 +431,7 @@ export const useConversationStore = defineStore('conversation', () => {
     })
     messageCount.value = messages.value.length
     checklist.value = snapshot.checklist === null ? null : clonePersistable(snapshot.checklist)
+    healthCase.value = snapshot.healthCase === null ? null : clonePersistable(snapshot.healthCase)
     pending.value = false
     lastFailedOperation.value = null
     pendingQuestion.value = null
@@ -405,6 +445,7 @@ export const useConversationStore = defineStore('conversation', () => {
     messageCount.value = 0
     context.value = {}
     checklist.value = null
+    healthCase.value = null
     pending.value = false
     lastFailedOperation.value = null
     pendingQuestion.value = null
@@ -427,6 +468,7 @@ export const useConversationStore = defineStore('conversation', () => {
     lastFailedOperation,
     histories,
     checklist,
+    healthCase,
     initialized,
     storageStatus,
     storageMessage,
@@ -443,6 +485,8 @@ export const useConversationStore = defineStore('conversation', () => {
     deleteConversation,
     saveChecklist,
     toggleChecklistItem,
+    saveHealthCase,
+    clearHealthCase,
     clearLocalData,
     exportLocalData,
     retryStorage,

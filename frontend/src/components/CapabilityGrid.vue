@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { computed } from 'vue'
+
 import type { CapabilityDescriptor } from '@/services/api/types'
 
-defineProps<{
+const props = defineProps<{
   capabilities: CapabilityDescriptor[]
 }>()
 
@@ -16,8 +18,15 @@ const prompts: Record<string, string> = {
   OCCUPATION_QUERY: '我想查询职业分类',
   APPLICATION_PROCESS: '投保前需要经过哪些步骤？',
   MATERIAL_CHECKLIST: '投保前需要准备什么资料？',
+  HEALTH_DISCLOSURE: '我想核对健康告知',
   CLAIMS_PATH: '发生保险事故后如何报案？',
 }
+
+const enabledCapabilities = computed(() => props.capabilities.filter(capability => capability.enabled))
+const phaseLabel = computed(() => enabledCapabilities.value.some(capability => capability.intent === 'HEALTH_DISCLOSURE')
+  ? '阶段 6'
+  : '阶段 5')
+const enabledLabels = computed(() => enabledCapabilities.value.map(capability => capability.label).join('、'))
 </script>
 
 <template>
@@ -27,7 +36,7 @@ const prompts: Record<string, string> = {
         <p class="eyebrow">限定域能力</p>
         <h2 id="capability-title">你可以这样问我</h2>
       </div>
-      <span>阶段 5 · 已开放 7 项</span>
+      <span>{{ phaseLabel }} · 已开放 {{ enabledCapabilities.length }} 项</span>
     </div>
 
     <ul class="capability-grid" aria-describedby="capability-help">
@@ -46,7 +55,7 @@ const prompts: Record<string, string> = {
       </li>
     </ul>
     <p id="capability-help" class="supporting-copy">
-      当前开放保障责任、免责限制、投保规则、职业查询、投保流程、动态资料清单和理赔路径；其余能力按阶段验收后开放。
+      当前开放{{ enabledLabels }}；其余能力按阶段验收后开放。
     </p>
   </section>
 </template>

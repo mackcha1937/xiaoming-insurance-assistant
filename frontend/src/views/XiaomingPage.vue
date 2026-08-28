@@ -6,6 +6,7 @@ import CapabilityGrid from '@/components/CapabilityGrid.vue'
 import ChecklistPanel from '@/components/ChecklistPanel.vue'
 import ConversationPanel from '@/components/ConversationPanel.vue'
 import HistoryDrawer from '@/components/HistoryDrawer.vue'
+import HealthDisclosurePanel from '@/components/HealthDisclosurePanel.vue'
 import NewConversationDialog from '@/components/NewConversationDialog.vue'
 import OccupationPanel from '@/components/OccupationPanel.vue'
 import PrivacyNotice from '@/components/PrivacyNotice.vue'
@@ -21,6 +22,7 @@ const uiStore = useUiStore()
 const conversationStore = useConversationStore()
 const occupationOpen = ref(false)
 const checklistOpen = ref(false)
+const healthOpen = ref(false)
 const historyOpen = ref(false)
 const newCustomerOpen = ref(false)
 
@@ -43,6 +45,15 @@ async function ask(intent: XiaomingIntent, prompt: string): Promise<void> {
     }
     return
   }
+  if (intent === 'HEALTH_DISCLOSURE') {
+    healthOpen.value = true
+    await nextTick()
+    const panel = document.querySelector('#health-disclosure')
+    if (typeof panel?.scrollIntoView === 'function') {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    return
+  }
   void conversationStore.send(prompt)
 }
 
@@ -51,6 +62,7 @@ async function createCustomer(alias: string): Promise<void> {
     newCustomerOpen.value = false
     occupationOpen.value = false
     checklistOpen.value = false
+    healthOpen.value = false
     uiStore.announce('已保存原咨询并新建客户')
   }
 }
@@ -131,6 +143,7 @@ onUnmounted(() => {
       <CapabilityGrid :capabilities="productStore.context.capabilities" @select="ask" />
       <OccupationPanel :open="occupationOpen" />
       <ChecklistPanel :open="checklistOpen" />
+      <HealthDisclosurePanel :open="healthOpen" @close="healthOpen = false" />
       <ConversationPanel />
     </main>
 

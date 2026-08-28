@@ -164,3 +164,89 @@ export interface ChecklistGenerateRequest {
   beneficiaryMode: BeneficiaryMode
   healthStatus: ChecklistHealthStatus
 }
+
+export type HealthFactType =
+  | 'DISEASE'
+  | 'SYMPTOM'
+  | 'HOSPITALIZATION'
+  | 'SURGERY'
+  | 'MEDICATION'
+  | 'EXAMINATION'
+  | 'MEASUREMENT'
+  | 'FOLLOW_UP'
+  | 'CURRENT_STATUS'
+  | 'ACTIVITY'
+  | 'BIRTH_HISTORY'
+  | 'PREGNANCY'
+export type HealthFactPolarity = 'PRESENT' | 'ABSENT' | 'UNKNOWN'
+export type HealthFileStatus = 'SUCCESS' | 'FAILED'
+export type HealthMatchState = 'HIT' | 'NO_HIT_FOUND' | 'INSUFFICIENT'
+export type InsuredSex = 'MALE' | 'FEMALE' | 'UNSPECIFIED'
+
+export interface HealthSourceLocation {
+  sourceId: string
+  sourceLabel: string
+  page: number | null
+  line: number | null
+  excerpt: string
+}
+
+export interface HealthFact {
+  factId: string
+  type: HealthFactType
+  code: string
+  label: string
+  value: string
+  numericValue: number | null
+  unit: string | null
+  date: string | null
+  polarity: HealthFactPolarity
+  sourceLocation: HealthSourceLocation
+  confidence: number
+  confirmed: boolean
+}
+
+export interface HealthFileResult {
+  fileId: string
+  label: string
+  status: HealthFileStatus
+  code: string
+  message: string
+  factCount: number
+}
+
+export interface HealthExtractionResult {
+  extractionVersion: string
+  knowledgeVersion: string
+  facts: HealthFact[]
+  files: HealthFileResult[]
+  notice: string
+}
+
+export interface HealthQuestionMatch {
+  questionId: string
+  questionText: string
+  state: HealthMatchState
+  matchedFactIds: string[]
+  reason: string
+  missingFields: string[]
+  evidence: Evidence
+}
+
+export interface HealthMatchResult {
+  matchVersion: string
+  knowledgeVersion: string
+  state: HealthMatchState
+  questions: HealthQuestionMatch[]
+  notice: string
+}
+
+export interface HealthMatchRequest {
+  productId: '36743'
+  conversationId: string
+  knowledgeVersion: string
+  confirmed: true
+  insuredAgeYears: number | null
+  insuredSex: InsuredSex
+  facts: HealthFact[]
+}

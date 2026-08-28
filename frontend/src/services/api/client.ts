@@ -3,6 +3,9 @@ import type {
   ChatRequest,
   ChecklistGenerateRequest,
   ChecklistResult,
+  HealthExtractionResult,
+  HealthMatchRequest,
+  HealthMatchResult,
   OccupationConfirmationResult,
   OccupationConfirmRequest,
   OccupationSearchResult,
@@ -30,6 +33,28 @@ export interface IdempotentOccupationRequest {
 export interface IdempotentChecklistRequest {
   identity: Required<RequestIdentity>
   execute: () => Promise<XiaomingResponse<ChecklistResult>>
+}
+
+export interface HealthExtractionPayload {
+  productId: '36743'
+  conversationId: string
+  knowledgeVersion: string
+  authorized: true
+  text?: string
+  files?: File[]
+}
+
+export interface IdempotentHealthExtractionRequest {
+  identity: Required<RequestIdentity>
+  execute: (
+    onProgress?: (progress: number) => void,
+    signal?: AbortSignal,
+  ) => Promise<XiaomingResponse<HealthExtractionResult>>
+}
+
+export interface IdempotentHealthMatchRequest {
+  identity: Required<RequestIdentity>
+  execute: () => Promise<XiaomingResponse<HealthMatchResult>>
 }
 
 export class ApiResponseError extends Error {
@@ -136,6 +161,96 @@ export function prepareChecklistGeneration(
   return {
     identity,
     execute: () => request<ChecklistResult>('/checklists/generate', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, identity),
+  }
+}
+
+export function prepareHealthExtraction(
+  payload: HealthExtractionPayload,
+): IdempotentHealthExtractionRequest {
+  const identity: Required<RequestIdentity> = {
+    requestId: createRequestId(),
+    idempotencyKey: createIdempotencyKey(),
+  }
+  return {
+    identity,
+    execute: (onProgress, signal) => uploadHealthInput(payload, identity, onProgress, signal),
+  }
+}
+
+function uploadHealthInput(
+  payload: HealthExtractionPayload,
+  identity: Required<RequestIdentity>,
+  onProgress?: (progress: number) => void,
+  signal?: AbortSignal,
+): Promise<XiaomingResponse<HealthExtractionResult>> {
+  const envelope = new URLSearchParams({
+    productId: payload.productId,
+    conversationId: payload.conversationId,
+    knowledgeVersion: payload.knowledgeVersion,
+    authorized: 'true',
+  })
+  const form = new FormData()
+  if (payload.text !== undefined && payload.text.trim().length > 0) form.set('text', payload.text.trim())
+  payload.files?.forEach(file => form.append('files', file))
+
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    const abort = (): void => xhr.abort()
+    xhr.open('POST', `${API_BASE_PATH}/health/extract?${envelope.toString()}`)
+    xhr.setRequestHeader('Accept', 'application/json')
+    xhr.setRequestHeader('X-Request-Id', identity.requestId)
+    xhr.setRequestHeader('Idempotency-Key', identity.idempotencyKey)
+    xhr.upload.onprogress = event => {
+      if (event.lengthComputable) onProgress?.(Math.round((event.loaded / event.total) * 100))
+    }
+    xhr.onload = () => {
+      signal?.removeEventListener('abort', abort)
+      const body = parseResponse<HealthExtractionResult>(xhr.responseText)
+      if (xhr.status < 200 || xhr.status >= 300 || body === null) {
+        reject(new ApiResponseError(xhr.status, body))
+        return
+      }
+      onProgress?.(100)
+      resolve(body)
+    }
+    xhr.onerror = () => {
+      signal?.removeEventListener('abort', abort)
+      reject(new ApiResponseError(0, null))
+    }
+    xhr.timeout = 60_000
+    xhr.ontimeout = () => {
+      signal?.removeEventListener('abort', abort)
+      reject(new ApiResponseError(0, null))
+    }
+    xhr.onabort = () => {
+      signal?.removeEventListener('abort', abort)
+      reject(new DOMException('Upload cancelled', 'AbortError'))
+    }
+    signal?.addEventListener('abort', abort, { once: true })
+    if (signal?.aborted) abort()
+    else xhr.send(form)
+  })
+}
+
+function parseResponse<T>(value: string): XiaomingResponse<T> | null {
+  try {
+    return JSON.parse(value) as XiaomingResponse<T>
+  } catch {
+    return null
+  }
+}
+
+export function prepareHealthMatch(payload: HealthMatchRequest): IdempotentHealthMatchRequest {
+  const identity: Required<RequestIdentity> = {
+    requestId: createRequestId(),
+    idempotencyKey: createIdempotencyKey(),
+  }
+  return {
+    identity,
+    execute: () => request<HealthMatchResult>('/health/match', {
       method: 'POST',
       body: JSON.stringify(payload),
     }, identity),
