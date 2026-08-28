@@ -10,6 +10,7 @@ public class XiaomingHealthProperties {
     private int maxPdfPages = 30;
     private int maxTextCharacters = 20_000;
     private double minimumConfidence = 0.5;
+    private long processingTimeoutMillis = 30_000;
 
     public int getMaxFiles() { return maxFiles; }
     public void setMaxFiles(int maxFiles) { this.maxFiles = maxFiles; }
@@ -21,4 +22,9 @@ public class XiaomingHealthProperties {
     public void setMaxTextCharacters(int maxTextCharacters) { this.maxTextCharacters = maxTextCharacters; }
     public double getMinimumConfidence() { return minimumConfidence; }
     public void setMinimumConfidence(double minimumConfidence) { this.minimumConfidence = minimumConfidence; }
+    public long getProcessingTimeoutMillis() { return processingTimeoutMillis; }
+    public void setProcessingTimeoutMillis(long processingTimeoutMillis) {
+        if (processingTimeoutMillis < 1) throw new IllegalArgumentException("processingTimeoutMillis must be positive");
+        this.processingTimeoutMillis = processingTimeoutMillis;
+    }
 }

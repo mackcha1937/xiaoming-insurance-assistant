@@ -26,6 +26,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.FutureTask;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Service
 public class HealthExtractionService {
@@ -91,7 +95,7 @@ public class HealthExtractionService {
                     String fileId = "health-file-" + UUID.randomUUID();
                     String label = "文件 " + (index + 1);
                     try {
-                        List<HealthFactDraft> fileFacts = processFile(
+                        List<HealthFactDraft> fileFacts = processFileWithTimeout(
                                 requestDirectory, file, fileId, label, currentVersion
                         );
                         facts.addAll(fileFacts);
@@ -118,6 +122,51 @@ public class HealthExtractionService {
                 fileResults,
                 "事实草稿不会自动匹配。请逐项修改、删除或确认；原始文件和中间内容已清理。"
         );
+    }
+
+    private List<HealthFactDraft> processFileWithTimeout(
+            Path requestDirectory,
+            MultipartFile multipart,
+            String sourceId,
+            String label,
+            String currentVersion
+    ) {
+        FutureTask<List<HealthFactDraft>> task = new FutureTask<>(
+                () -> processFile(requestDirectory, multipart, sourceId, label, currentVersion)
+        );
+        Thread worker = Thread.ofVirtual().name("xiaoming-health-file-").start(task);
+        try {
+            return task.get(properties.getProcessingTimeoutMillis(), TimeUnit.MILLISECONDS);
+        } catch (TimeoutException exception) {
+            task.cancel(true);
+            worker.interrupt();
+            throw new HealthServiceException(
+                    HealthServiceException.Reason.PROCESSING_TIMEOUT,
+                    "文件处理超过 30 秒，已停止；请压缩文件或改用手工文字输入。",
+                    currentVersion,
+                    exception
+            );
+        } catch (InterruptedException exception) {
+            task.cancel(true);
+            worker.interrupt();
+            Thread.currentThread().interrupt();
+            throw new HealthServiceException(
+                    HealthServiceException.Reason.PROCESSING_TIMEOUT,
+                    "文件处理已中断，请改用手工文字输入或稍后重试。",
+                    currentVersion,
+                    exception
+            );
+        } catch (ExecutionException exception) {
+            if (exception.getCause() instanceof HealthServiceException healthException) {
+                throw healthException;
+            }
+            throw new HealthServiceException(
+                    HealthServiceException.Reason.FILE_UNSUPPORTED,
+                    "文件处理失败，请改用手工文字输入。",
+                    currentVersion,
+                    exception.getCause()
+            );
+        }
     }
 
     private List<HealthFactDraft> processFile(

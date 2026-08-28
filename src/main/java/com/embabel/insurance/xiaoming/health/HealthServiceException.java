@@ -5,6 +5,7 @@ public class HealthServiceException extends RuntimeException {
     public enum Reason {
         VALIDATION,
         FILE_UNSUPPORTED,
+        PROCESSING_TIMEOUT,
         SNAPSHOT_UNAVAILABLE,
         VERSION_CONFLICT
     }

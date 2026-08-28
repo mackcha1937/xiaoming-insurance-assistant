@@ -71,7 +71,7 @@
     {
       "label": "Maven: DeepSeek E2E",
       "type": "shell",
-      "command": "set -a; source .env.local; set +a; ./mvnw -Plive-e2e test",
+      "command": "set -a; source .env.local; set +a; ./mvnw -Plive-e2e -Dtest=XiaomingDeepSeekLiveE2ETest test",
       "options": {
         "cwd": "${workspaceFolder}",
         "shell": {

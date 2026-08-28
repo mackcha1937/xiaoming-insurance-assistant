@@ -16,7 +16,7 @@ class IntentGuardServiceTest {
     void shouldRecognizeRepresentativeActiveQuestions() {
         List<String> questions = List.of(
                 "这款产品保什么", "基本责任有哪些", "可选责任有哪些", "轻症怎么保障",
-                "中症责任是什么", "重疾赔付次数", "疾病关爱责任", "身故责任是什么",
+                "中症责任是什么", "重疾赔付次数", "重大疾病保险金怎么给付", "疾病关爱责任", "身故责任是什么",
                 "哪些情况免责", "责任免除有哪些", "什么情况不承担责任", "等待期限制是什么",
                 "有哪些除外责任", "不赔情况有哪些", "免责条款在哪里", "责任免除怎么规定",
                 "投保年龄要求", "投保规则是什么", "投保条件有哪些", "被保人年龄限制",
@@ -63,5 +63,13 @@ class IntentGuardServiceTest {
         IntentGuardDecision mixed = service.evaluate("保障责任是什么，并推荐其他保险");
         assertEquals(IntentGuardStatus.MIXED, mixed.status());
         assertEquals(List.of(XiaomingIntent.COVERAGE_RESPONSIBILITY), mixed.allowedIntents());
+    }
+
+    @Test
+    void shouldPreferSpecificChecklistOverGenericApplicationPrefix() {
+        IntentGuardDecision decision = service.evaluate("投保前需要什么资料？");
+
+        assertEquals(IntentGuardStatus.ALLOWED, decision.status());
+        assertEquals(List.of(XiaomingIntent.MATERIAL_CHECKLIST), decision.allowedIntents());
     }
 }

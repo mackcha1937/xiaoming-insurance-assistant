@@ -105,6 +105,8 @@ xiaoming:
     max-pdf-pages: 30
     max-text-characters: 20000
     minimum-confidence: 0.5
+    # Hard stop for each file/OCR task; timed-out work is interrupted and no draft is guessed.
+    processing-timeout-millis: 30000
   application:
     # Keep disabled until an approved environment-specific HTTPS address is supplied.
     enabled: ${XIAOMING_APPLICATION_ENABLED:false}

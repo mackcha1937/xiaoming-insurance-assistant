@@ -101,6 +101,36 @@ class HealthExtractionServiceTest {
     }
 
     @Test
+    void stopsSlowFileProcessingAtConfiguredTimeoutWithoutGuessingFacts() throws Exception {
+        properties.setProcessingTimeoutMillis(50);
+        MockMultipartFile image = new MockMultipartFile("files", "scan.png", "image/png", png());
+        long started = System.nanoTime();
+
+        HealthExtractionResult result = service((path, type) -> {
+            try {
+                Thread.sleep(10_000);
+                return "高血压";
+            } catch (InterruptedException exception) {
+                Thread.currentThread().interrupt();
+                throw new HealthServiceException(
+                        HealthServiceException.Reason.PROCESSING_TIMEOUT,
+                        "OCR interrupted",
+                        ""
+                );
+            }
+        }).extract(command(null, List.of(image)));
+
+        long elapsedMillis = java.util.concurrent.TimeUnit.NANOSECONDS
+                .toMillis(System.nanoTime() - started);
+        assertTrue(elapsedMillis < 2_000, "configured timeout must stop the request promptly");
+        assertTrue(result.facts().isEmpty());
+        assertEquals(HealthFileStatus.FAILED, result.files().getFirst().status());
+        assertEquals("PROCESSING_TIMEOUT", result.files().getFirst().code());
+        assertTrue(result.files().getFirst().message().contains("30 秒"));
+        assertDirectoryEmpty();
+    }
+
+    @Test
     void rejectsMimeMagicMismatchAndContinuesOtherFiles() throws Exception {
         MockMultipartFile bad = new MockMultipartFile(
                 "files", "fake.pdf", "application/pdf", "not a pdf".getBytes(StandardCharsets.UTF_8)

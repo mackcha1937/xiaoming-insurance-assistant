@@ -1276,6 +1276,10 @@ a {
 }
 
 .evidence-panel summary {
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 0;
   color: var(--color-brand);
   font-size: 13px;
   font-weight: 680;
@@ -1823,6 +1827,11 @@ footer p {
   font-weight: 650;
 }
 .application-panel > .primary-action { width: 100%; min-width: 220px; min-height: 48px; }
+.application-panel > .section-heading .secondary-action {
+  min-height: 44px;
+  padding: 9px 13px;
+  border-radius: 10px;
+}
 .application-incomplete { display: grid; gap: 4px; padding: 10px 12px; border-radius: 10px; background: #fff8e8; }
 .application-acknowledge { display: flex; gap: 9px; align-items: center; min-height: 44px; }
 .application-acknowledge input { width: 19px; height: 19px; }

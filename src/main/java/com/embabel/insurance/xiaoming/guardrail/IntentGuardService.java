@@ -49,7 +49,7 @@ public class IntentGuardService {
     public IntentGuardService() {
         keywords.put(XiaomingIntent.COVERAGE_RESPONSIBILITY, List.of(
                 "保什么", "保障什么", "保障责任", "基本责任", "可选责任", "轻症", "中症", "重疾",
-                "疾病关爱", "赔付比例", "赔付次数", "身故责任"
+                "重大疾病", "疾病关爱", "赔付比例", "赔付次数", "身故责任"
         ));
         keywords.put(XiaomingIntent.EXCLUSIONS_AND_LIMITATIONS, List.of(
                 "免责", "责任免除", "不承担", "不赔情况", "未达到", "等待期限制", "除外责任"
@@ -87,6 +87,7 @@ public class IntentGuardService {
                 .filter(entry -> entry.getValue().stream().anyMatch(normalized::contains))
                 .map(Map.Entry::getKey)
                 .toList();
+        detected = preferSpecificWorkflowIntent(detected);
         List<XiaomingIntent> allowed = detected.stream().filter(ACTIVE_INTENTS::contains).toList();
         List<XiaomingIntent> unavailable = detected.stream().filter(intent -> !ACTIVE_INTENTS.contains(intent)).toList();
         boolean refusedPart = OUT_OF_SCOPE_PATTERNS.stream().anyMatch(pattern -> pattern.matcher(normalized).find());
@@ -133,6 +134,20 @@ public class IntentGuardService {
         return List.of("保什么", "保障", "责任", "赔付", "次数")
                 .stream()
                 .noneMatch(normalized::contains);
+    }
+
+    private List<XiaomingIntent> preferSpecificWorkflowIntent(List<XiaomingIntent> detected) {
+        if (!detected.contains(XiaomingIntent.APPLICATION_PROCESS)) {
+            return detected;
+        }
+        boolean hasSpecificWorkflow = detected.stream().anyMatch(intent ->
+                intent == XiaomingIntent.OCCUPATION_QUERY
+                        || intent == XiaomingIntent.MATERIAL_CHECKLIST
+                        || intent == XiaomingIntent.HEALTH_DISCLOSURE
+                        || intent == XiaomingIntent.FORMAL_APPLICATION);
+        return hasSpecificWorkflow
+                ? detected.stream().filter(intent -> intent != XiaomingIntent.APPLICATION_PROCESS).toList()
+                : detected;
     }
 
     private static String normalize(String value) {

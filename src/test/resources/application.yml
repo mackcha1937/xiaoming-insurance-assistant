@@ -91,6 +91,7 @@ xiaoming:
     max-pdf-pages: 30
     max-text-characters: 20000
     minimum-confidence: 0.5
+    processing-timeout-millis: 30000
   application:
     enabled: true
     base-url: https://apply.example.test/start
