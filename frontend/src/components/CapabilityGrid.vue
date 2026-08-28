@@ -20,17 +20,18 @@ const prompts: Record<string, string> = {
   MATERIAL_CHECKLIST: '投保前需要准备什么资料？',
   HEALTH_DISCLOSURE: '我想核对健康告知',
   CLAIMS_PATH: '发生保险事故后如何报案？',
+  FORMAL_APPLICATION: '我想开始正式投保',
 }
 
 const enabledCapabilities = computed(() => props.capabilities.filter(capability => capability.enabled))
-const phaseLabel = computed(() => enabledCapabilities.value.some(capability => capability.intent === 'HEALTH_DISCLOSURE')
-  ? '阶段 6'
-  : '阶段 5')
+const phaseLabel = computed(() => enabledCapabilities.value.some(capability => capability.intent === 'FORMAL_APPLICATION')
+  ? '阶段 7'
+  : enabledCapabilities.value.some(capability => capability.intent === 'HEALTH_DISCLOSURE') ? '阶段 6' : '阶段 5')
 const enabledLabels = computed(() => enabledCapabilities.value.map(capability => capability.label).join('、'))
 </script>
 
 <template>
-  <section class="capability-section" aria-labelledby="capability-title">
+  <section id="capability-section" class="capability-section" aria-labelledby="capability-title">
     <div class="section-heading">
       <div>
         <p class="eyebrow">限定域能力</p>
@@ -45,6 +46,7 @@ const enabledLabels = computed(() => enabledCapabilities.value.map(capability =>
           type="button"
           :disabled="!capability.enabled"
           :class="{ enabled: capability.enabled }"
+          :data-intent="capability.intent"
           :aria-label="`${capability.label}，${capability.enabled ? '当前可用' : '后续阶段开放'}`"
           @click="emit('select', capability.intent, prompts[capability.intent] ?? capability.label)"
         >

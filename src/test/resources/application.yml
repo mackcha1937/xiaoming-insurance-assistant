@@ -91,6 +91,15 @@ xiaoming:
     max-pdf-pages: 30
     max-text-characters: 20000
     minimum-confidence: 0.5
+  application:
+    enabled: true
+    base-url: https://apply.example.test/start
+    allowed-domains: apply.example.test
+    allowed-params: channelType,source
+    ttl-seconds: 300
+  feedback:
+    enabled: true
+    max-records: 100
 
 logging:
   level:

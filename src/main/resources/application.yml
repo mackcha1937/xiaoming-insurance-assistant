@@ -105,6 +105,16 @@ xiaoming:
     max-pdf-pages: 30
     max-text-characters: 20000
     minimum-confidence: 0.5
+  application:
+    # Keep disabled until an approved environment-specific HTTPS address is supplied.
+    enabled: ${XIAOMING_APPLICATION_ENABLED:false}
+    base-url: ${XIAOMING_APPLICATION_BASE_URL:}
+    allowed-domains: ${XIAOMING_APPLICATION_ALLOWED_DOMAINS:}
+    allowed-params: channelType,source
+    ttl-seconds: 300
+  feedback:
+    enabled: ${XIAOMING_FEEDBACK_ENABLED:true}
+    max-records: 1000
 
 # ============================================================
 # 可观测性 — Actuator + Prometheus（已开启）

@@ -4,9 +4,11 @@ import com.embabel.insurance.xiaoming.api.ChatRequest;
 import com.embabel.insurance.xiaoming.config.XiaomingConversationProperties;
 import com.embabel.insurance.xiaoming.config.XiaomingKnowledgeProperties;
 import com.embabel.insurance.xiaoming.contract.BusinessStatus;
+import com.embabel.insurance.xiaoming.contract.ActionType;
 import com.embabel.insurance.xiaoming.contract.CardType;
 import com.embabel.insurance.xiaoming.contract.MissingField;
 import com.embabel.insurance.xiaoming.contract.XiaomingCard;
+import com.embabel.insurance.xiaoming.contract.XiaomingAction;
 import com.embabel.insurance.xiaoming.contract.XiaomingError;
 import com.embabel.insurance.xiaoming.contract.XiaomingErrorCode;
 import com.embabel.insurance.xiaoming.contract.XiaomingEvidence;
@@ -100,6 +102,13 @@ public class XiaomingConversationService {
                     : guard.unavailableIntents().getFirst();
             return refused(guard.refusalReason(), traceId, requestId, intent);
         }
+        if (guard.allowedIntents().size() == 1
+                && guard.allowedIntents().contains(XiaomingIntent.FORMAL_APPLICATION)) {
+            String version = snapshotStore.current()
+                    .map(snapshot -> snapshot.knowledgeVersion().versionId())
+                    .orElse(null);
+            return applicationHandoff(version, traceId, requestId);
+        }
 
         KnowledgeSnapshotStore.Snapshot snapshot = snapshotStore.current().orElse(null);
         if (snapshot == null) {
@@ -123,7 +132,6 @@ public class XiaomingConversationService {
                 && guard.allowedIntents().contains(XiaomingIntent.HEALTH_DISCLOSURE)) {
             return healthHandoff(knowledgeVersion, traceId, requestId);
         }
-
         Map<String, Object> facts = factExtractor.extract(request.getMessage(), request.getContext());
         if (needsInsuredAge(request.getMessage(), facts, guard.allowedIntents())) {
             return needInsuredAge(knowledgeVersion, traceId, requestId);
@@ -160,6 +168,16 @@ public class XiaomingConversationService {
                         CardType.QUESTION,
                         "健康事实需要先授权并确认",
                         Map.of("message", "请使用健康告知面板阅读隐私提示；事实未经逐项确认不会执行匹配。")
+                ));
+                continue;
+            }
+            if (intent == XiaomingIntent.FORMAL_APPLICATION) {
+                cards.add(new XiaomingCard(
+                        "application-check-required",
+                        "1.0",
+                        CardType.APPLICATION_CHECK,
+                        "正式投保前检查",
+                        Map.of("message", "请先汇总当前客户的规则、职业、健康告知和资料清单状态，再确认进入外部正式页面。")
                 ));
                 continue;
             }
@@ -467,7 +485,8 @@ public class XiaomingConversationService {
                 new XiaomingSuggestion("process", "投保流程", "投保前需要经过哪些步骤？", XiaomingIntent.APPLICATION_PROCESS),
                 new XiaomingSuggestion("checklist", "资料清单", "投保前需要准备什么资料？", XiaomingIntent.MATERIAL_CHECKLIST),
                 new XiaomingSuggestion("health", "健康告知", "我想核对健康告知", XiaomingIntent.HEALTH_DISCLOSURE),
-                new XiaomingSuggestion("claims", "理赔路径", "发生保险事故后如何报案？", XiaomingIntent.CLAIMS_PATH)
+                new XiaomingSuggestion("claims", "理赔路径", "发生保险事故后如何报案？", XiaomingIntent.CLAIMS_PATH),
+                new XiaomingSuggestion("application", "正式投保", "我想开始正式投保", XiaomingIntent.FORMAL_APPLICATION)
         );
     }
 
@@ -540,6 +559,40 @@ public class XiaomingConversationService {
                 List.of(),
                 suggestions(),
                 List.of(),
+                List.of(),
+                version,
+                traceId,
+                requestId,
+                null
+        );
+        return new ConversationResult(HttpStatus.OK, response);
+    }
+
+    private ConversationResult applicationHandoff(String version, String traceId, String requestId) {
+        String message = "正式投保前请先汇总当前客户的规则、职业、健康告知和资料清单状态；检查不完整时仍需顾问明确确认。";
+        XiaomingResponse<Map<String, Object>> response = new XiaomingResponse<>(
+                BusinessStatus.NEED_INPUT,
+                XiaomingIntent.FORMAL_APPLICATION,
+                message,
+                Map.of("target", "formal-application"),
+                List.of(new XiaomingCard(
+                        "application-check-required",
+                        "1.0",
+                        CardType.APPLICATION_CHECK,
+                        "打开正式投保前检查",
+                        Map.of("message", "检查结果只用于提醒，正式页面会重新校验全部信息。")
+                )),
+                List.of(),
+                suggestions(),
+                List.of(new XiaomingAction(
+                        "run-application-check",
+                        ActionType.RUN_APPLICATION_CHECK,
+                        "开始投保前检查",
+                        true,
+                        true,
+                        null,
+                        Map.of("target", "formal-application")
+                )),
                 List.of(),
                 version,
                 traceId,

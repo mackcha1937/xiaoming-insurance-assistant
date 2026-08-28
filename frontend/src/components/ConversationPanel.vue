@@ -3,11 +3,27 @@ import { nextTick, ref, watch } from 'vue'
 
 import type { MissingField } from '@/services/api/types'
 import { useConversationStore } from '@/stores/conversation'
+import FeedbackDialog from '@/components/FeedbackDialog.vue'
+import type { XiaomingResponse } from '@/services/api/types'
 
 const conversation = useConversationStore()
 const input = ref('')
 const transcript = ref<HTMLElement | null>(null)
 const fieldValues = ref<Record<string, string>>({})
+const feedbackOpen = ref(false)
+const feedbackResponse = ref<XiaomingResponse<Record<string, unknown>> | null>(null)
+const feedbackQuestion = ref('')
+const feedbackAnswer = ref('')
+
+function openFeedback(index: number): void {
+  const message = conversation.messages[index]
+  if (message?.response === undefined) return
+  feedbackResponse.value = message.response
+  feedbackAnswer.value = message.text
+  feedbackQuestion.value = [...conversation.messages.slice(0, index)].reverse()
+    .find(candidate => candidate.role === 'user')?.text ?? ''
+  feedbackOpen.value = true
+}
 
 async function submit(): Promise<void> {
   const value = input.value
@@ -35,6 +51,13 @@ watch(() => conversation.messages.length, async () => {
     transcript.value.scrollTo({ top: transcript.value.scrollHeight, behavior: 'smooth' })
   }
 })
+
+watch(() => conversation.conversationId, () => {
+  feedbackOpen.value = false
+  feedbackResponse.value = null
+  feedbackQuestion.value = ''
+  feedbackAnswer.value = ''
+})
 </script>
 
 <template>
@@ -57,7 +80,7 @@ watch(() => conversation.messages.length, async () => {
       </article>
 
       <article
-        v-for="message in conversation.messages"
+        v-for="(message, messageIndex) in conversation.messages"
         :key="message.id"
         class="message-row"
         :class="message.role"
@@ -109,6 +132,7 @@ watch(() => conversation.messages.length, async () => {
                 </li>
               </ol>
             </details>
+            <button type="button" class="feedback-trigger" @click="openFeedback(messageIndex)">回答有误</button>
           </template>
         </div>
       </article>
@@ -147,4 +171,11 @@ watch(() => conversation.messages.length, async () => {
       <p id="composer-help">请勿输入身份证号、手机号或完整病历；Enter 发送，Shift + Enter 换行。</p>
     </form>
   </section>
+  <FeedbackDialog
+    :open="feedbackOpen"
+    :response="feedbackResponse"
+    :question="feedbackQuestion"
+    :answer="feedbackAnswer"
+    @close="feedbackOpen = false"
+  />
 </template>

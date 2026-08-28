@@ -12,16 +12,7 @@ import java.util.Set;
 @Service
 public class ProductContextService {
 
-    private static final Set<XiaomingIntent> PHASE_06_CAPABILITIES = Set.of(
-            XiaomingIntent.COVERAGE_RESPONSIBILITY,
-            XiaomingIntent.EXCLUSIONS_AND_LIMITATIONS,
-            XiaomingIntent.APPLICATION_RULES,
-            XiaomingIntent.OCCUPATION_QUERY,
-            XiaomingIntent.APPLICATION_PROCESS,
-            XiaomingIntent.MATERIAL_CHECKLIST,
-            XiaomingIntent.HEALTH_DISCLOSURE,
-            XiaomingIntent.CLAIMS_PATH
-    );
+    private static final Set<XiaomingIntent> PHASE_07_CAPABILITIES = Set.of(XiaomingIntent.values());
 
     private final XiaomingProductProperties properties;
     private final KnowledgeSnapshotStore snapshotStore;
@@ -39,7 +30,7 @@ public class ProductContextService {
                 .map(intent -> new CapabilityDescriptor(
                         intent,
                         intent.getLabel(),
-                        PHASE_06_CAPABILITIES.contains(intent)
+                        PHASE_07_CAPABILITIES.contains(intent)
                 ))
                 .toList();
 

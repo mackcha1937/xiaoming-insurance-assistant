@@ -250,3 +250,32 @@ export interface HealthMatchRequest {
   insuredSex: InsuredSex
   facts: HealthFact[]
 }
+
+export interface ApplicationLinkResult {
+  productId: '36743'
+  environment: string
+  url: string
+  allowedDomain: string
+  expiresAt: string
+  notice: string
+}
+
+export type FeedbackReason = 'EVIDENCE_MISMATCH' | 'RULE_MISMATCH' | 'UNCLEAR' | 'OUTDATED' | 'OTHER'
+
+export interface FeedbackRequest {
+  productId: '36743'
+  conversationId: string
+  knowledgeVersion: string
+  intent: XiaomingIntent
+  reason: FeedbackReason
+  includeContext: boolean
+  questionSummary?: string
+  answerSummary?: string
+  evidenceIds: string[]
+}
+
+export interface FeedbackResult {
+  feedbackId: string
+  status: 'ACCEPTED'
+  acceptedAt: string
+}

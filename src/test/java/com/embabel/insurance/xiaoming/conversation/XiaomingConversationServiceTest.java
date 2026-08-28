@@ -5,6 +5,7 @@ import com.embabel.insurance.xiaoming.config.XiaomingConversationProperties;
 import com.embabel.insurance.xiaoming.config.XiaomingKnowledgeProperties;
 import com.embabel.insurance.xiaoming.contract.BusinessStatus;
 import com.embabel.insurance.xiaoming.contract.XiaomingErrorCode;
+import com.embabel.insurance.xiaoming.contract.XiaomingIntent;
 import com.embabel.insurance.xiaoming.evidence.EvidenceService;
 import com.embabel.insurance.xiaoming.guardrail.IntentGuardService;
 import com.embabel.insurance.xiaoming.knowledge.ClauseChunk;
@@ -83,6 +84,18 @@ class XiaomingConversationServiceTest {
 
         assertEquals(BusinessStatus.REFUSED, result.response().status());
         assertEquals(XiaomingErrorCode.INTENT_NOT_ALLOWED, result.response().error().code());
+        assertTrue(result.response().evidence().isEmpty());
+    }
+
+    @Test
+    void shouldOpenFormalApplicationPreflightWithoutRequiringKnowledgeRetrieval() {
+        ConversationResult result = service(new KnowledgeSnapshotStore(), new EvidenceOnlyAnswerGenerator())
+                .answer(request("我想开始正式投保", Map.of(), null), "trace-application", "request-application");
+
+        assertEquals(HttpStatus.OK, result.httpStatus());
+        assertEquals(BusinessStatus.NEED_INPUT, result.response().status());
+        assertEquals(XiaomingIntent.FORMAL_APPLICATION, result.response().intent());
+        assertEquals("formal-application", result.response().data().get("target"));
         assertTrue(result.response().evidence().isEmpty());
     }
 

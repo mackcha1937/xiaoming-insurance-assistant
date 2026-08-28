@@ -31,6 +31,7 @@ const product: ProductContext = {
       'MATERIAL_CHECKLIST',
       'HEALTH_DISCLOSURE',
       'CLAIMS_PATH',
+      'FORMAL_APPLICATION',
     ].includes(code),
   })),
 }
@@ -133,7 +134,7 @@ const occupationConfirmPayload: XiaomingResponse<OccupationConfirmationResult> =
   error: null,
 }
 
-describe('Xiaoming Phase 06 page', () => {
+describe('Xiaoming Phase 07 page', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
@@ -155,16 +156,16 @@ describe('Xiaoming Phase 06 page', () => {
     }))
   })
 
-  it('shows the passwordless POC boundary and eight enabled capabilities', async () => {
+  it('shows the passwordless POC boundary and all nine enabled capabilities', async () => {
     const wrapper = mount(XiaomingPage, { attachTo: document.body })
     await flushPromises()
 
     expect(wrapper.text()).toContain('暂不登录')
     expect(wrapper.text()).toContain('邀请码准入')
     expect(wrapper.findAll('.capability-grid button')).toHaveLength(9)
-    expect(wrapper.findAll('.capability-grid button:not([disabled])')).toHaveLength(8)
-    expect(wrapper.findAll('.capability-grid button[disabled]')).toHaveLength(1)
-    expect(wrapper.text()).toContain('阶段 6 · 已开放 8 项')
+    expect(wrapper.findAll('.capability-grid button:not([disabled])')).toHaveLength(9)
+    expect(wrapper.findAll('.capability-grid button[disabled]')).toHaveLength(0)
+    expect(wrapper.text()).toContain('阶段 7 · 已开放 9 项')
     expect(wrapper.text()).toContain('健康告知')
     expect(wrapper.find('textarea').attributes('disabled')).toBeUndefined()
     expect(wrapper.find('input[type="password"]').exists()).toBe(false)

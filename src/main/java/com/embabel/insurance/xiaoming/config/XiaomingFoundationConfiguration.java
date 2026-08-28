@@ -7,7 +7,9 @@ import org.springframework.context.annotation.Configuration;
 @EnableConfigurationProperties({
         XiaomingProductProperties.class,
         XiaomingConversationProperties.class,
-        XiaomingHealthProperties.class
+        XiaomingHealthProperties.class,
+        XiaomingApplicationProperties.class,
+        XiaomingFeedbackProperties.class
 })
 public class XiaomingFoundationConfiguration {
 }

@@ -23,7 +23,8 @@ public class IntentGuardService {
             XiaomingIntent.APPLICATION_PROCESS,
             XiaomingIntent.MATERIAL_CHECKLIST,
             XiaomingIntent.HEALTH_DISCLOSURE,
-            XiaomingIntent.CLAIMS_PATH
+            XiaomingIntent.CLAIMS_PATH,
+            XiaomingIntent.FORMAL_APPLICATION
     );
 
     private static final List<Pattern> INJECTION_PATTERNS = List.of(

@@ -6,6 +6,9 @@ import type {
   HealthExtractionResult,
   HealthMatchRequest,
   HealthMatchResult,
+  ApplicationLinkResult,
+  FeedbackRequest,
+  FeedbackResult,
   OccupationConfirmationResult,
   OccupationConfirmRequest,
   OccupationSearchResult,
@@ -55,6 +58,11 @@ export interface IdempotentHealthExtractionRequest {
 export interface IdempotentHealthMatchRequest {
   identity: Required<RequestIdentity>
   execute: () => Promise<XiaomingResponse<HealthMatchResult>>
+}
+
+export interface IdempotentFeedbackRequest {
+  identity: Required<RequestIdentity>
+  execute: () => Promise<XiaomingResponse<FeedbackResult>>
 }
 
 export class ApiResponseError extends Error {
@@ -251,6 +259,25 @@ export function prepareHealthMatch(payload: HealthMatchRequest): IdempotentHealt
   return {
     identity,
     execute: () => request<HealthMatchResult>('/health/match', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, identity),
+  }
+}
+
+export function getApplicationUrl(channelType = 'advisor'): Promise<XiaomingResponse<ApplicationLinkResult>> {
+  const parameters = new URLSearchParams({ productId: '36743', channelType })
+  return request<ApplicationLinkResult>(`/application-url?${parameters.toString()}`)
+}
+
+export function prepareFeedback(payload: FeedbackRequest): IdempotentFeedbackRequest {
+  const identity: Required<RequestIdentity> = {
+    requestId: createRequestId(),
+    idempotencyKey: createIdempotencyKey(),
+  }
+  return {
+    identity,
+    execute: () => request<FeedbackResult>('/feedback', {
       method: 'POST',
       body: JSON.stringify(payload),
     }, identity),

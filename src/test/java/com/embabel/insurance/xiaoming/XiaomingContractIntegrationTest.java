@@ -37,7 +37,7 @@ class XiaomingContractIntegrationTest {
     private MockMvc mockMvc;
 
     @Test
-    void shouldReturnNoLoginProductContextWithEightPhaseSixCapabilities() throws Exception {
+    void shouldReturnNoLoginProductContextWithAllNinePhaseSevenCapabilities() throws Exception {
         mockMvc.perform(get(BASE_PATH + "/product-context")
                         .header("X-Request-Id", "request-00000001"))
                 .andExpect(status().isOk())
@@ -49,8 +49,8 @@ class XiaomingContractIntegrationTest {
                 .andExpect(jsonPath("$.data.authenticationRequired").value(false))
                 .andExpect(jsonPath("$.data.accessMode").value("POC_NO_LOGIN"))
                 .andExpect(jsonPath("$.data.capabilities", hasSize(9)))
-                .andExpect(jsonPath("$.data.capabilities[?(@.enabled == true)]", hasSize(8)))
-                .andExpect(jsonPath("$.data.capabilities[?(@.enabled == false)]", hasSize(1)))
+                .andExpect(jsonPath("$.data.capabilities[?(@.enabled == true)]", hasSize(9)))
+                .andExpect(jsonPath("$.data.capabilities[?(@.enabled == false)]", hasSize(0)))
                 .andExpect(jsonPath("$.cards").isArray())
                 .andExpect(jsonPath("$.evidence").isArray())
                 .andExpect(jsonPath("$.suggestions").isArray())

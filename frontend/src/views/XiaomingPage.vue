@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { nextTick, onMounted, onUnmounted, ref } from 'vue'
+import { nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
+import ApplicationPanel from '@/components/ApplicationPanel.vue'
 import CapabilityGrid from '@/components/CapabilityGrid.vue'
 import ChecklistPanel from '@/components/ChecklistPanel.vue'
 import ConversationPanel from '@/components/ConversationPanel.vue'
@@ -23,6 +24,7 @@ const conversationStore = useConversationStore()
 const occupationOpen = ref(false)
 const checklistOpen = ref(false)
 const healthOpen = ref(false)
+const applicationOpen = ref(false)
 const historyOpen = ref(false)
 const newCustomerOpen = ref(false)
 
@@ -54,6 +56,12 @@ async function ask(intent: XiaomingIntent, prompt: string): Promise<void> {
     }
     return
   }
+  if (intent === 'FORMAL_APPLICATION') {
+    applicationOpen.value = true
+    await nextTick()
+    document.querySelector('#formal-application')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    return
+  }
   void conversationStore.send(prompt)
 }
 
@@ -63,8 +71,24 @@ async function createCustomer(alias: string): Promise<void> {
     occupationOpen.value = false
     checklistOpen.value = false
     healthOpen.value = false
+    applicationOpen.value = false
     uiStore.announce('已保存原咨询并新建客户')
   }
+}
+
+async function returnToApplicationCheck(item: 'RULES' | 'OCCUPATION' | 'HEALTH' | 'CHECKLIST'): Promise<void> {
+  applicationOpen.value = false
+  if (item === 'OCCUPATION') occupationOpen.value = true
+  if (item === 'HEALTH') healthOpen.value = true
+  if (item === 'CHECKLIST') checklistOpen.value = true
+  await nextTick()
+  const target = item === 'RULES'
+    ? document.querySelector<HTMLElement>('[data-intent="APPLICATION_RULES"]')
+    : document.querySelector<HTMLElement>(item === 'OCCUPATION'
+      ? '#occupation-search'
+      : item === 'HEALTH' ? '#health-disclosure' : '#material-checklist')
+  target?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  target?.focus()
 }
 
 function handleOnline(): void {
@@ -88,6 +112,13 @@ onMounted(async () => {
 onUnmounted(() => {
   window.removeEventListener('online', handleOnline)
   window.removeEventListener('offline', handleOffline)
+})
+
+watch(() => conversationStore.conversationId, () => {
+  occupationOpen.value = false
+  checklistOpen.value = false
+  healthOpen.value = false
+  applicationOpen.value = false
 })
 </script>
 
@@ -144,6 +175,11 @@ onUnmounted(() => {
       <OccupationPanel :open="occupationOpen" />
       <ChecklistPanel :open="checklistOpen" />
       <HealthDisclosurePanel :open="healthOpen" @close="healthOpen = false" />
+      <ApplicationPanel
+        :open="applicationOpen"
+        @close="applicationOpen = false"
+        @navigate="returnToApplicationCheck"
+      />
       <ConversationPanel />
     </main>
 

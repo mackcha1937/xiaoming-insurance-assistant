@@ -1754,6 +1754,91 @@ footer p {
   margin: 0;
 }
 
+.application-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  scroll-margin-top: 112px;
+  background: linear-gradient(150deg, #fff9f0, #fff 58%);
+  border: 1px solid #f5c26b;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.application-state {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  color: #7a4b00;
+  background: #fffaeb;
+  border-radius: 11px;
+}
+
+.application-state.state-ready { color: #067647; background: #ecfdf3; }
+.application-state.state-stale { color: #b42318; background: #fef3f2; }
+.application-state span { font-size: 12px; line-height: 1.55; }
+
+.application-check-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.application-check-list li {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 58px;
+  padding: 10px 12px;
+  background: white;
+  border: 1px solid #e4e7ec;
+  border-radius: 11px;
+}
+
+.application-check-list li > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: #175cd3;
+  font-weight: 760;
+  background: #eef4ff;
+  border-radius: 50%;
+}
+
+.application-check-list strong,
+.application-check-list small { display: block; }
+.application-check-list small { margin-top: 3px; color: var(--color-muted); line-height: 1.45; }
+.application-return {
+  min-height: 44px;
+  margin-top: 7px;
+  padding: 7px 10px;
+  border: 1px solid #98a2b3;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--color-text);
+  font-weight: 650;
+}
+.application-panel > .primary-action { width: 100%; min-width: 220px; min-height: 48px; }
+.application-incomplete { display: grid; gap: 4px; padding: 10px 12px; border-radius: 10px; background: #fff8e8; }
+.application-acknowledge { display: flex; gap: 9px; align-items: center; min-height: 44px; }
+.application-acknowledge input { width: 19px; height: 19px; }
+
+.feedback-trigger {
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 8px 0;
+  color: #475467;
+  background: transparent;
+  border: 0;
+}
+
+.feedback-dialog label:not(.application-acknowledge) { display: grid; gap: 6px; font-weight: 650; }
+.feedback-dialog select { min-height: 46px; padding: 9px 10px; border: 1px solid #98a2b3; border-radius: 10px; }
+
 .sr-only {
   position: absolute;
   width: 1px;
