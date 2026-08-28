@@ -4,7 +4,7 @@
 
 分支：`phase/08-poc-hardening`
 
-结论：**技术验收（含一次真实 DeepSeek 最小 E2E）和标准题业务验收通过；最终验收待人工设备项。当前不是最终 PASS。**
+结论：**PASS（限 V2.0 内部 POC 范围）。技术门禁、真实 DeepSeek 最小 E2E 和标准题业务验收通过。用户于 2026-08-28 明确将真实手机验收延期到上线前；本结论不包含移动端、UAT 或生产上线通过。**
 
 ## 1. 本阶段交付
 
@@ -27,10 +27,10 @@
 结果：`PASS`
 
 - 后端：395 tests，0 failure，0 error，2 skipped（真实资料/外部条件项）。
-- 前端：13 个测试文件、48 tests，全部通过。
+- 前端：14 个测试文件、51 tests，全部通过。
 - 契约生成一致性：PASS。
 - TypeScript：PASS。
-- Vite production build：PASS；61 modules transformed。
+- Vite production build：PASS；62 modules transformed。
 - Git 空白、`.env.local` 忽略和密钥不入库检查：PASS。
 
 阶段特有命令：
@@ -88,12 +88,14 @@
 - 375、390、430、768、1440 px 均无横向溢出；修复后所有可见按钮、输入和 summary 有效操作区均不小于 44 px。
 - 页面结构审计：1 个 main、1 个 h1、无标题跨级、无重复 ID、无未命名按钮、无未标注表单控件，跳转主内容链接存在。
 - 控制台 0 warning、0 error；CSS 包含 3 px `:focus-visible` 和 `prefers-reduced-motion` 降级规则。
+- 真实手机首次打开局域网 HTTP 页面时发现白屏，定位为非安全上下文不支持 `crypto.randomUUID()`；已改为优先原生 UUID、否则使用 `crypto.getRandomValues()` 生成 UUID v4，并增加 3 项回归测试。
+- 修复后在非安全 HTTP、390 px 隔离移动 Chromium 中完成页面挂载、问答提交、证据返回和无横向溢出验证；用户的真实 iOS 内置浏览器仍报告白屏。根据用户决定，本设备问题不继续在 POC 阶段调试，转为上线前必修项。
 
-## 7. 尚未完成和阶段状态
+## 7. 延期项和阶段状态
 
 - DeepSeek 最小真实 E2E 已按本次明确授权执行并通过；该单次结果不代表生产 SLA 或泛化的后续外发授权。
-- 真实 iOS/Android、系统大字体/显示缩放为人工项，未完成。
+- 真实 iOS/Android、系统大字体/显示缩放未验收；iOS 内置浏览器有未解决白屏报告。用户明确延期到上线前，因此不得将本 POC 宣称为移动端可上线。
 - 真实 UAT/生产投保地址未提供，未验收；当前安全停止行为已通过。
 - 40 道标准答案和正式资料口径已获用户/业务负责人确认。
 
-因此本阶段保持 `phase/08-poc-hardening`，不创建 `phase-08-passed` 标签，不新建生产化分支。待上述必需项完成后，必须重跑完整门禁并更新本报告，才可给出最终 `PASS`。
+按用户对 POC 范围的明确决定，Phase 08 达到内部 POC 退出条件，可创建 `phase-08-passed` 标签并进入 `release/poc-v2.0` 交付分支。生产化必须另建已冻结的阶段和门禁，且不得继承本 POC 对真实移动设备、UAT、邀请码或上线的验收结论。
