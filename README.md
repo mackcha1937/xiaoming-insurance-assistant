@@ -2,8 +2,8 @@
 
 面向保险顾问的单产品限定域智能投保助手。首期产品为复星联合达尔文 12 号重大疾病保险（互联网），产品 ID `36743`。
 
-当前状态：**Phase 07 — 正式投保外链与反馈（已通过）**。完整结果见
-`docs/acceptance/phase-07-report.md`；真实 UAT/生产地址仍需由用户提供并完成业务、合规审批。
+当前状态：**Phase 08 — POC 全链路加固（开发中）**。Phase 07 已通过并以
+`phase-07-passed` 封存；当前只执行标准题、九类 E2E、故障、安全、性能、响应式、可访问性和演示验收。
 
 ## 开发依据
 
@@ -45,7 +45,7 @@ POC 阶段免登录，浏览器本地保存会话并严格隔离不同客户。�
 
 ## 分支规则
 
-- 当前阶段：`phase/07-application-feedback`
+- 当前阶段：`phase/08-poc-hardening`
 - 旧车险免登录归档：`archive/vehicle-poc-passwordless-wip`
 - 第三方 `upstream` 只读，禁止推送；
 - 阶段只有在验收报告为 PASS 后才能打 `phase-NN-passed` 标签并创建下一阶段分支。

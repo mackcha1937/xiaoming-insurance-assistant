@@ -51,6 +51,6 @@
 
 ## 当前阶段
 
-当前为 Phase 07：正式投保外链与反馈。范围见 `docs/development-roadmap.md` 和
-`docs/acceptance/phase-07-checklist.md`。本阶段只建设投保前检查、安全外链、环境/域名/参数
-白名单、脱敏主动反馈和受限埋点；不得代填、支付、推断投保成功或提前执行 Phase 08 全链路验收。
+当前为 Phase 08：POC 全链路加固。范围见 `docs/development-roadmap.md` 和
+`docs/acceptance/phase-08-checklist.md`。本阶段只执行标准题、九类 E2E、按钮状态、故障、安全、
+性能、响应式、可访问性、隐私和演示验收；不得实现生产邀请码、顾问登录、运营后台或生产发布。
