@@ -15,6 +15,7 @@ const prompts: Record<string, string> = {
   APPLICATION_RULES: '投保年龄和缴费期限有什么要求？',
   OCCUPATION_QUERY: '我想查询职业分类',
   APPLICATION_PROCESS: '投保前需要经过哪些步骤？',
+  MATERIAL_CHECKLIST: '投保前需要准备什么资料？',
   CLAIMS_PATH: '发生保险事故后如何报案？',
 }
 </script>
@@ -26,7 +27,7 @@ const prompts: Record<string, string> = {
         <p class="eyebrow">限定域能力</p>
         <h2 id="capability-title">你可以这样问我</h2>
       </div>
-      <span>阶段 4 · 已开放 6 项</span>
+      <span>阶段 5 · 已开放 7 项</span>
     </div>
 
     <ul class="capability-grid" aria-describedby="capability-help">
@@ -45,7 +46,7 @@ const prompts: Record<string, string> = {
       </li>
     </ul>
     <p id="capability-help" class="supporting-copy">
-      当前开放保障责任、免责限制、投保规则、职业查询、投保流程和理赔路径；其余能力按阶段验收后开放。
+      当前开放保障责任、免责限制、投保规则、职业查询、投保流程、动态资料清单和理赔路径；其余能力按阶段验收后开放。
     </p>
   </section>
 </template>

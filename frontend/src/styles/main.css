@@ -39,7 +39,8 @@ body {
 
 button,
 textarea,
-input {
+input,
+select {
   font: inherit;
 }
 
@@ -133,6 +134,39 @@ a {
   line-height: 1.25;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.brand-copy small {
+  display: block;
+  overflow: hidden;
+  margin-top: 3px;
+  color: var(--color-muted);
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.header-actions {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+
+.header-actions button {
+  min-height: 44px;
+  padding: 8px 10px;
+  color: #344054;
+  font-size: 12px;
+  font-weight: 680;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+}
+
+.header-actions .header-primary {
+  color: white;
+  background: var(--color-brand);
+  border-color: var(--color-brand);
 }
 
 .connection-badge {
@@ -284,6 +318,425 @@ a {
   background: #f9fafb;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-sm);
+}
+
+.service-message button,
+.storage-error button {
+  min-height: 44px;
+  padding: 7px 10px;
+  color: var(--color-brand);
+  font-weight: 680;
+  background: white;
+  border: 1px solid #b8cdfd;
+  border-radius: 9px;
+}
+
+.version-update {
+  padding: 12px 14px;
+  color: #7a4b00;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: var(--radius-sm);
+}
+
+.version-update p {
+  margin: 4px 0 0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.checklist-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  scroll-margin-top: 112px;
+  background: linear-gradient(150deg, #f8faff, #ffffff 58%);
+  border: 1px solid #b8cdfd;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.checklist-panel .section-heading {
+  margin-bottom: 0;
+}
+
+.checklist-form > p,
+.boundary-notice {
+  margin: 0;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.checklist-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.checklist-fields label {
+  display: grid;
+  gap: 6px;
+  color: #344054;
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.checklist-fields input,
+.checklist-fields select,
+.history-drawer input,
+.confirm-dialog input {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 11px;
+  color: var(--color-ink);
+  background: white;
+  border: 1px solid #98a2b3;
+  border-radius: 10px;
+}
+
+.checklist-form > .primary-action {
+  min-height: 46px;
+  padding: 10px 16px;
+  font-weight: 680;
+  border-radius: 10px;
+}
+
+.checklist-result {
+  display: grid;
+  gap: 12px;
+}
+
+.checklist-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 12px;
+  background: #eef4ff;
+  border-radius: 12px;
+}
+
+.checklist-summary strong,
+.checklist-summary span {
+  display: block;
+}
+
+.checklist-summary span {
+  margin-top: 3px;
+  color: var(--color-muted);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+
+.checklist-summary button,
+.item-menu summary,
+.item-menu button,
+.compact-actions button,
+.history-footer-actions button,
+.drawer-header button,
+.dialog-actions button {
+  min-height: 44px;
+}
+
+.checklist-group {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.checklist-group legend {
+  margin-bottom: 8px;
+  color: #173a7a;
+  font-size: 14px;
+  font-weight: 720;
+}
+
+.checklist-item {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  min-height: 64px;
+  padding: 11px 12px;
+  cursor: pointer;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 12px;
+}
+
+.checklist-item input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-brand);
+}
+
+.checklist-item strong,
+.checklist-item small {
+  display: block;
+}
+
+.checklist-item small {
+  margin-top: 4px;
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+.checklist-item em {
+  padding: 4px 7px;
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 720;
+  border-radius: 999px;
+}
+
+.checklist-item em.required {
+  color: #b42318;
+  background: #fef3f2;
+}
+
+.checklist-item em.suggested {
+  color: #175cd3;
+  background: #eff8ff;
+}
+
+.item-menu {
+  position: relative;
+}
+
+.item-menu summary {
+  display: grid;
+  min-width: 44px;
+  padding: 0 12px;
+  place-items: center;
+  cursor: pointer;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 10px;
+  list-style: none;
+}
+
+.item-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.item-menu-popover {
+  position: absolute;
+  z-index: 4;
+  top: 48px;
+  right: 0;
+  min-width: 120px;
+  padding: 6px;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+  box-shadow: var(--shadow-card);
+}
+
+.item-menu-popover button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  background: white;
+  border: 0;
+  border-radius: 7px;
+}
+
+.item-menu-popover button:hover,
+.item-menu-popover button:focus-visible {
+  background: #f2f4f7;
+}
+
+.storage-error {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 11px 12px;
+  color: #b42318;
+  font-size: 12px;
+  background: #fef3f2;
+  border: 1px solid #fecdca;
+  border-radius: 10px;
+}
+
+.drawer-backdrop,
+.modal-backdrop {
+  position: fixed;
+  z-index: 60;
+  inset: 0;
+  display: flex;
+  justify-content: flex-end;
+  background: rgb(16 24 40 / 46%);
+}
+
+.history-drawer {
+  width: min(92vw, 420px);
+  height: 100%;
+  padding: max(20px, env(safe-area-inset-top)) 18px max(20px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: white;
+  box-shadow: -18px 0 44px rgb(16 24 40 / 18%);
+}
+
+.drawer-header {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.drawer-header h2 {
+  margin: 4px 0 0;
+}
+
+.drawer-header button,
+.history-footer-actions button,
+.compact-actions button {
+  padding: 8px 11px;
+  color: #344054;
+  background: white;
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+}
+
+.shared-device-warning {
+  padding: 10px 12px;
+  color: #7a4b00;
+  font-size: 12px;
+  line-height: 1.55;
+  background: #fffaeb;
+  border: 1px solid #fedf89;
+  border-radius: 10px;
+}
+
+.history-drawer > label,
+.confirm-dialog > label {
+  display: block;
+  margin: 14px 0 7px;
+  font-size: 13px;
+  font-weight: 680;
+}
+
+.history-list {
+  display: grid;
+  gap: 9px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-list li {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 9px;
+  border: 1px solid #e4e7ec;
+  border-radius: 12px;
+}
+
+.history-list li.current {
+  background: #f5f8ff;
+  border-color: #b8cdfd;
+}
+
+.history-restore {
+  min-width: 0;
+  min-height: 58px;
+  padding: 4px;
+  color: #172033;
+  text-align: left;
+  background: transparent;
+  border: 0;
+}
+
+.history-restore strong,
+.history-restore span,
+.history-restore small {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-restore span,
+.history-restore small {
+  margin-top: 4px;
+  color: var(--color-muted);
+  font-size: 11px;
+}
+
+.compact-actions,
+.history-footer-actions,
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.history-footer-actions {
+  margin-top: 18px;
+  justify-content: space-between;
+}
+
+.danger-text {
+  color: #b42318 !important;
+}
+
+.modal-backdrop {
+  z-index: 80;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.confirm-dialog {
+  width: min(100%, 420px);
+  max-height: 90vh;
+  padding: 20px;
+  overflow-y: auto;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 24px 72px rgb(16 24 40 / 28%);
+}
+
+.confirm-dialog h2 {
+  margin: 5px 0 8px;
+  font-size: 21px;
+}
+
+.confirm-dialog > p:not(.eyebrow) {
+  color: var(--color-muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.dialog-actions {
+  margin-top: 18px;
+}
+
+.dialog-actions button {
+  padding: 9px 14px;
+  font-weight: 680;
+  border-radius: 10px;
+}
+
+.danger-action {
+  color: white;
+  background: #d92d20;
+  border: 1px solid #d92d20;
+}
+
+.inline-error {
+  color: #b42318 !important;
 }
 
 .capability-section {
@@ -964,6 +1417,15 @@ footer p {
 }
 
 @media (max-width: 390px) {
+  .app-header {
+    grid-template-columns: 44px minmax(0, 1fr);
+  }
+
+  .header-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+  }
+
   .connection-badge {
     width: 10px;
     height: 10px;
@@ -994,6 +1456,27 @@ footer p {
 
   .occupation-search-form button {
     flex: 0 0 64px;
+  }
+
+  .checklist-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .checklist-summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .checklist-summary .checklist-menu {
+    grid-column: 2;
+  }
+
+  .checklist-item {
+    grid-template-columns: 22px minmax(0, 1fr);
+  }
+
+  .checklist-item em {
+    grid-column: 2;
+    justify-self: start;
   }
 }
 

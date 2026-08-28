@@ -115,6 +115,10 @@ public class XiaomingConversationService {
                 && guard.allowedIntents().contains(XiaomingIntent.OCCUPATION_QUERY)) {
             return occupationHandoff(knowledgeVersion, traceId, requestId);
         }
+        if (guard.allowedIntents().size() == 1
+                && guard.allowedIntents().contains(XiaomingIntent.MATERIAL_CHECKLIST)) {
+            return checklistHandoff(knowledgeVersion, traceId, requestId);
+        }
 
         Map<String, Object> facts = factExtractor.extract(request.getMessage(), request.getContext());
         if (needsInsuredAge(request.getMessage(), facts, guard.allowedIntents())) {
@@ -132,6 +136,16 @@ public class XiaomingConversationService {
                         CardType.QUESTION,
                         "职业需要先确认",
                         Map.of("message", "请使用职业查询面板搜索并选择候选；确认前不会判断职业类别。")
+                ));
+                continue;
+            }
+            if (intent == XiaomingIntent.MATERIAL_CHECKLIST) {
+                cards.add(new XiaomingCard(
+                        "checklist-input-required",
+                        "1.0",
+                        CardType.QUESTION,
+                        "资料清单需要补充条件",
+                        Map.of("message", "请使用动态资料清单面板补充年龄、投保关系、证件、受益人和健康状态。")
                 ));
                 continue;
             }
@@ -437,6 +451,7 @@ public class XiaomingConversationService {
                 new XiaomingSuggestion("rules", "投保规则", "投保年龄和缴费期限有什么要求？", XiaomingIntent.APPLICATION_RULES),
                 new XiaomingSuggestion("occupation", "职业查询", "我想查询职业分类", XiaomingIntent.OCCUPATION_QUERY),
                 new XiaomingSuggestion("process", "投保流程", "投保前需要经过哪些步骤？", XiaomingIntent.APPLICATION_PROCESS),
+                new XiaomingSuggestion("checklist", "资料清单", "投保前需要准备什么资料？", XiaomingIntent.MATERIAL_CHECKLIST),
                 new XiaomingSuggestion("claims", "理赔路径", "发生保险事故后如何报案？", XiaomingIntent.CLAIMS_PATH)
         );
     }
@@ -454,6 +469,32 @@ public class XiaomingConversationService {
                         CardType.QUESTION,
                         "打开职业查询",
                         Map.of("message", "请在职业查询面板输入一个职业名称或日常工作内容。")
+                )),
+                List.of(),
+                suggestions(),
+                List.of(),
+                List.of(),
+                version,
+                traceId,
+                requestId,
+                null
+        );
+        return new ConversationResult(HttpStatus.OK, response);
+    }
+
+    private ConversationResult checklistHandoff(String version, String traceId, String requestId) {
+        String message = "动态资料清单需要先补充非敏感条件；清单不会要求您在本 POC 中填写身份号码。";
+        XiaomingResponse<Map<String, Object>> response = new XiaomingResponse<>(
+                BusinessStatus.NEED_INPUT,
+                XiaomingIntent.MATERIAL_CHECKLIST,
+                message,
+                Map.of("target", "material-checklist"),
+                List.of(new XiaomingCard(
+                        "checklist-generate-required",
+                        "1.0",
+                        CardType.QUESTION,
+                        "打开动态资料清单",
+                        Map.of("message", "请在清单面板选择年龄、投保关系、证件类型、受益人设置和健康状态。")
                 )),
                 List.of(),
                 suggestions(),

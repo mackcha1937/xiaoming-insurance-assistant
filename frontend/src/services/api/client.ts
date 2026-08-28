@@ -1,6 +1,8 @@
 import { API_BASE_PATH } from '@/services/generated/contracts'
 import type {
   ChatRequest,
+  ChecklistGenerateRequest,
+  ChecklistResult,
   OccupationConfirmationResult,
   OccupationConfirmRequest,
   OccupationSearchResult,
@@ -23,6 +25,11 @@ export interface IdempotentChatRequest {
 export interface IdempotentOccupationRequest {
   identity: Required<RequestIdentity>
   execute: () => Promise<XiaomingResponse<OccupationConfirmationResult>>
+}
+
+export interface IdempotentChecklistRequest {
+  identity: Required<RequestIdentity>
+  execute: () => Promise<XiaomingResponse<ChecklistResult>>
 }
 
 export class ApiResponseError extends Error {
@@ -113,6 +120,22 @@ export function prepareOccupationConfirmation(
   return {
     identity,
     execute: () => request<OccupationConfirmationResult>('/occupations/confirm', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }, identity),
+  }
+}
+
+export function prepareChecklistGeneration(
+  payload: ChecklistGenerateRequest,
+): IdempotentChecklistRequest {
+  const identity: Required<RequestIdentity> = {
+    requestId: createRequestId(),
+    idempotencyKey: createIdempotencyKey(),
+  }
+  return {
+    identity,
+    execute: () => request<ChecklistResult>('/checklists/generate', {
       method: 'POST',
       body: JSON.stringify(payload),
     }, identity),

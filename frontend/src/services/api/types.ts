@@ -132,3 +132,35 @@ export interface OccupationConfirmationResult {
   occupationVersion: string
   notice: string
 }
+
+export type ChecklistSection = 'INPUT_INFORMATION' | 'PREPARE_MATERIALS' | 'READ_CONFIRM'
+export type ApplicantRelationship = 'SELF' | 'PARENT' | 'CHILD' | 'SPOUSE' | 'OTHER'
+export type IdDocumentType = 'NATIONAL_ID' | 'PASSPORT' | 'OTHER'
+export type BeneficiaryMode = 'STATUTORY' | 'DESIGNATED'
+export type ChecklistHealthStatus = 'NOT_CHECKED' | 'NO_EXCEPTION' | 'NEEDS_DISCLOSURE'
+
+export interface ChecklistItem {
+  id: string
+  section: ChecklistSection
+  label: string
+  required: boolean
+  reason: string
+}
+
+export interface ChecklistResult {
+  checklistVersion: string
+  knowledgeVersion: string
+  items: ChecklistItem[]
+  notice: string
+}
+
+export interface ChecklistGenerateRequest {
+  productId: '36743'
+  conversationId: string
+  knowledgeVersion: string
+  insuredAgeYears: number
+  applicantRelationship: ApplicantRelationship
+  idDocumentType: IdDocumentType
+  beneficiaryMode: BeneficiaryMode
+  healthStatus: ChecklistHealthStatus
+}

@@ -21,6 +21,7 @@ public class IntentGuardService {
             XiaomingIntent.APPLICATION_RULES,
             XiaomingIntent.OCCUPATION_QUERY,
             XiaomingIntent.APPLICATION_PROCESS,
+            XiaomingIntent.MATERIAL_CHECKLIST,
             XiaomingIntent.CLAIMS_PATH
     );
 

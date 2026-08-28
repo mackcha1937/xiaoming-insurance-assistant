@@ -3,7 +3,10 @@ import { nextTick, onMounted, onUnmounted, ref } from 'vue'
 
 import AppHeader from '@/components/AppHeader.vue'
 import CapabilityGrid from '@/components/CapabilityGrid.vue'
+import ChecklistPanel from '@/components/ChecklistPanel.vue'
 import ConversationPanel from '@/components/ConversationPanel.vue'
+import HistoryDrawer from '@/components/HistoryDrawer.vue'
+import NewConversationDialog from '@/components/NewConversationDialog.vue'
 import OccupationPanel from '@/components/OccupationPanel.vue'
 import PrivacyNotice from '@/components/PrivacyNotice.vue'
 import { useNetworkStore } from '@/stores/network'
@@ -17,6 +20,9 @@ const networkStore = useNetworkStore()
 const uiStore = useUiStore()
 const conversationStore = useConversationStore()
 const occupationOpen = ref(false)
+const checklistOpen = ref(false)
+const historyOpen = ref(false)
+const newCustomerOpen = ref(false)
 
 async function ask(intent: XiaomingIntent, prompt: string): Promise<void> {
   if (intent === 'OCCUPATION_QUERY') {
@@ -28,7 +34,25 @@ async function ask(intent: XiaomingIntent, prompt: string): Promise<void> {
     }
     return
   }
+  if (intent === 'MATERIAL_CHECKLIST') {
+    checklistOpen.value = true
+    await nextTick()
+    const panel = document.querySelector('#material-checklist')
+    if (typeof panel?.scrollIntoView === 'function') {
+      panel.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+    return
+  }
   void conversationStore.send(prompt)
+}
+
+async function createCustomer(alias: string): Promise<void> {
+  if (await conversationStore.createConversation(alias)) {
+    newCustomerOpen.value = false
+    occupationOpen.value = false
+    checklistOpen.value = false
+    uiStore.announce('已保存原咨询并新建客户')
+  }
 }
 
 function handleOnline(): void {
@@ -42,10 +66,11 @@ function handleOffline(): void {
   uiStore.announce('网络已断开，当前页面仍可查看')
 }
 
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('online', handleOnline)
   window.addEventListener('offline', handleOffline)
-  void productStore.load()
+  await productStore.load()
+  await conversationStore.initialize(productStore.context.knowledgeVersion)
 })
 
 onUnmounted(() => {
@@ -59,6 +84,9 @@ onUnmounted(() => {
     <AppHeader
       :product-name="productStore.productShortName"
       :connected="productStore.connected"
+      :customer-alias="conversationStore.title"
+      @history="historyOpen = true"
+      @new-customer="newCustomerOpen = true"
     />
 
     <main id="main-content" class="content-shell" tabindex="-1">
@@ -89,8 +117,20 @@ onUnmounted(() => {
         <span>{{ networkStore.lastError }}</span>
       </div>
 
+      <div v-if="conversationStore.storageMessage" class="service-message storage-message" role="alert">
+        <strong>本机历史提示</strong>
+        <span>{{ conversationStore.storageMessage }}</span>
+        <button type="button" @click="conversationStore.retryStorage">重试</button>
+      </div>
+
+      <div v-if="conversationStore.versionOutdated" class="version-update" role="status">
+        <strong>正式资料已更新</strong>
+        <p>当前历史保留 {{ conversationStore.conversationKnowledgeVersion }}；新查询将使用 {{ productStore.context.knowledgeVersion }}。</p>
+      </div>
+
       <CapabilityGrid :capabilities="productStore.context.capabilities" @select="ask" />
       <OccupationPanel :open="occupationOpen" />
+      <ChecklistPanel :open="checklistOpen" />
       <ConversationPanel />
     </main>
 
@@ -98,5 +138,12 @@ onUnmounted(() => {
       <p>内部开发预览 · 不构成保险建议或承保承诺</p>
     </footer>
     <p class="sr-only" aria-live="polite">{{ uiStore.liveMessage }}</p>
+    <HistoryDrawer :open="historyOpen" @close="historyOpen = false" />
+    <NewConversationDialog
+      :open="newCustomerOpen"
+      :error-message="conversationStore.storageMessage"
+      @cancel="newCustomerOpen = false"
+      @confirm="createCustomer"
+    />
   </div>
 </template>
