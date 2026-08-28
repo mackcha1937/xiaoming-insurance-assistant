@@ -16,6 +16,7 @@ import type {
 } from '@/services/api/types'
 import { useConversationStore } from '@/stores/conversation'
 import { useProductStore } from '@/stores/product'
+import { generateUuid } from '@/utils/uuid'
 
 const MAX_FILES = 5
 const MAX_FILE_BYTES = 10 * 1024 * 1024
@@ -245,7 +246,7 @@ export const useHealthStore = defineStore('health', () => {
     const trimmed = value.trim()
     if (trimmed.length === 0) return
     facts.value.push({
-      factId: `health-fact-${crypto.randomUUID()}`,
+      factId: `health-fact-${generateUuid()}`,
       type: 'CURRENT_STATUS',
       code: 'MANUAL_OTHER',
       label: '手工补充',
@@ -386,7 +387,7 @@ export const useHealthStore = defineStore('health', () => {
 
   function localFile(file: File, label: string, fileStatus: LocalFileStatus, message: string): LocalHealthFile {
     return {
-      id: crypto.randomUUID(), label, size: file.size, status: fileStatus,
+      id: generateUuid(), label, size: file.size, status: fileStatus,
       progress: 0, message, file, operation: null,
     }
   }

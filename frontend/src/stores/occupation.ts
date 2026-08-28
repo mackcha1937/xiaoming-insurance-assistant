@@ -9,6 +9,7 @@ import {
 } from '@/services/api/client'
 import type { OccupationCandidate, OccupationConfirmationResult } from '@/services/api/types'
 import { useConversationStore } from '@/stores/conversation'
+import { generateUuid } from '@/utils/uuid'
 
 export type OccupationStatus =
   | 'IDLE'
@@ -57,7 +58,7 @@ export const useOccupationStore = defineStore('occupation', () => {
     errorMessage.value = ''
     supplementalMode.value = false
     clearDebounce()
-    const token = `occupation-${crypto.randomUUID()}`
+    const token = `occupation-${generateUuid()}`
     currentQueryToken.value = token
     activeController?.abort()
     activeController = null
@@ -77,7 +78,7 @@ export const useOccupationStore = defineStore('occupation', () => {
   function searchNow(): void {
     const value = query.value
     clearDebounce()
-    const token = `occupation-${crypto.randomUUID()}`
+    const token = `occupation-${generateUuid()}`
     currentQueryToken.value = token
     void runSearch(value, token)
   }

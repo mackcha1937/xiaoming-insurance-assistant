@@ -19,6 +19,7 @@ import type {
   MissingField,
   XiaomingResponse,
 } from '@/services/api/types'
+import { generateUuid } from '@/utils/uuid'
 
 export interface ConversationMessage {
   id: string
@@ -29,7 +30,7 @@ export interface ConversationMessage {
 }
 
 const repository = new ConversationRepository()
-const newId = (): string => `conversation-${crypto.randomUUID()}`
+const newId = (): string => `conversation-${generateUuid()}`
 const clonePersistable = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T
 
 export const useConversationStore = defineStore('conversation', () => {
@@ -85,7 +86,7 @@ export const useConversationStore = defineStore('conversation', () => {
     const trimmed = message.trim()
     if (trimmed.length === 0 || pending.value) return
     messages.value.push({
-      id: crypto.randomUUID(),
+      id: generateUuid(),
       role: 'user',
       text: trimmed,
       createdAt: Date.now(),
@@ -107,7 +108,7 @@ export const useConversationStore = defineStore('conversation', () => {
     if (value === '' || (typeof value === 'number' && !Number.isFinite(value))) return
     context.value = { ...context.value, [field.name]: value }
     messages.value.push({
-      id: crypto.randomUUID(),
+      id: generateUuid(),
       role: 'user',
       text: `${field.label}：${rawValue}`,
       createdAt: Date.now(),
@@ -136,7 +137,7 @@ export const useConversationStore = defineStore('conversation', () => {
     try {
       const response = await operation.execute()
       messages.value.push({
-        id: crypto.randomUUID(),
+        id: generateUuid(),
         role: 'assistant',
         text: response.message,
         response,
@@ -150,7 +151,7 @@ export const useConversationStore = defineStore('conversation', () => {
         ? error.response as XiaomingResponse<Record<string, unknown>> | null
         : null
       const failureMessage: ConversationMessage = {
-        id: crypto.randomUUID(),
+        id: generateUuid(),
         role: 'assistant',
         text: response?.message ?? '请求没有完成，请检查服务连接后重试。',
         createdAt: Date.now(),

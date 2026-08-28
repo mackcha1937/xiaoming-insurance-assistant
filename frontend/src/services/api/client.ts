@@ -15,6 +15,7 @@ import type {
   ProductContext,
   XiaomingResponse,
 } from './types'
+import { generateUuid } from '@/utils/uuid'
 
 const SAFE_ID_PREFIX = 'xiaoming-web-'
 
@@ -78,11 +79,11 @@ export class ApiResponseError extends Error {
 }
 
 export function createRequestId(): string {
-  return `${SAFE_ID_PREFIX}${crypto.randomUUID()}`
+  return `${SAFE_ID_PREFIX}${generateUuid()}`
 }
 
 export function createIdempotencyKey(): string {
-  return `idem-${crypto.randomUUID()}`
+  return `idem-${generateUuid()}`
 }
 
 async function request<T>(
